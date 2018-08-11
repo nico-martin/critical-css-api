@@ -2,13 +2,9 @@ import critical from 'critical';
 import fs from 'fs';
 import logger from '../helpers/log';
 
-logger.debug("Some second debug messages");
-
 const targetFolder = 'dist/';
 
 export default (req, res) => {
-
-	logger.debug(req.body);
 
 	const maxDimensionsSize = 3;
 	const targetUrl = req.body.url;
@@ -62,12 +58,10 @@ function getDimensionsArray(dimensions) {
  */
 function generatingCritical(targetUrl, targetDimensions) {
 
-	console.log('Start CCSS for ', targetUrl);
+	logger.debug('Start CCSS for ', targetUrl);
 
 	return new Promise((resolve, reject) => {
-		/**
-		 * Critical
-		 */
+
 		critical.generate({
 			base: targetFolder,
 			src: targetUrl,
@@ -75,18 +69,18 @@ function generatingCritical(targetUrl, targetDimensions) {
 			dimensions: targetDimensions,
 			minify: true
 		}).then(output => {
-			console.log('Critical successfully generated');
+			logger.debug('Critical successfully generated');
 			resolve(output);
 		}).error(err => {
-			console.log('Critical Error ', err);
+			logger.debug('Critical Error ', err);
 			reject(new Error('Faild generating CCSS'));
 		}).catch(err => {
 			if (err.code === 'ENOTFOUND') {
-				console.log('URL not valid ');
-				console.log('Host', err.host, err.port);
+				logger.debug('URL not valid ');
+				logger.debug('Host', err.host, err.port);
 				reject(new Error('Not valid Host ' + err.host));
 			} else {
-				console.log('System error Message', err);
+				logger.debug('System error Message', err);
 				reject(new Error('Critical System Error' + err));
 			}
 		});
@@ -96,13 +90,13 @@ function generatingCritical(targetUrl, targetDimensions) {
 function deleteTempFiles() {
 	fs.readdir(targetFolder, (err, files) => {
 		if (err) {
-			console.log(err);
+			logger.debug(err);
 		}
 
 		for (const file of files) {
 			fs.unlink(path.join(targetFolder, file), err => {
 				if (err) {
-					console.log(err);
+					logger.debug(err);
 				}
 			});
 		}
