@@ -6,9 +6,8 @@ logger.debug("Some second debug messages");
 
 const targetFolder = 'dist/';
 
-export default function (req, res) {
+export default (req, res) => {
 
-	logger.debug(req);
 	logger.debug(req.body);
 
 	const maxDimensionsSize = 3;
@@ -82,7 +81,7 @@ function generatingCritical(targetUrl, targetDimensions) {
 			console.log('Critical Error ', err);
 			reject(new Error('Faild generating CCSS'));
 		}).catch(err => {
-			if (err.code == 'ENOTFOUND') {
+			if (err.code === 'ENOTFOUND') {
 				console.log('URL not valid ');
 				console.log('Host', err.host, err.port);
 				reject(new Error('Not valid Host ' + err.host));
