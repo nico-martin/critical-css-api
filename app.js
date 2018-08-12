@@ -16,3 +16,6 @@ app.listen(PORT, function () {
 });
 
 app.post('/', generateCriticalCSS);
+app.get('/', (req, res) => {
+	res.status(201).send('Hello World');
+});
