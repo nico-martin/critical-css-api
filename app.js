@@ -1,6 +1,6 @@
 import generateCriticalCSS from './routes/generateCriticalCSS';
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9090;
 
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -17,5 +17,5 @@ app.listen(PORT, function () {
 
 app.post('/', generateCriticalCSS);
 app.get('/', (req, res) => {
-	res.status(201).send('Hello World');
+	res.status(405).send('Please use a POST-Request');
 });
