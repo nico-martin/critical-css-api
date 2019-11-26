@@ -19,3 +19,7 @@ app.post('/', generateCriticalCSS);
 app.get('/', (req, res) => {
 	res.status(405).send('Please use a POST-Request');
 });
+
+app.post('/key/isValid', (req, res) => {
+	res.status(200).send('true');
+});
