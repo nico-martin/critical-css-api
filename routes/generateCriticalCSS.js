@@ -6,7 +6,7 @@ const targetFolder = 'dist/';
 
 export default (req, res) => {
 
-	console.log(req);
+	//console.log(req);
 	console.log(req.body);
 
 	const maxDimensionsSize = 3;
