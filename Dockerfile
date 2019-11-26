@@ -1,7 +1,7 @@
 FROM node:10
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /usr/src/ccss
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
