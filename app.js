@@ -9,7 +9,7 @@ import logger from "./helpers/log";
 
 let app = express();
 app.use(cors());
-//app.use(bodyParser.json());
+app.use(bodyParser.json());
 
 app.listen(PORT, function () {
 	console.log(`Critical CSS API listening on port ${PORT}!`);
