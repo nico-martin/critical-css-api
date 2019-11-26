@@ -1,13 +1,11 @@
 import critical from 'critical';
 import fs from 'fs';
+import path from 'path';
 import logger from '../helpers/log';
 
 const targetFolder = 'dist/';
 
 export default (req, res) => {
-
-	//console.log(req);
-	console.log(req.body);
 
 	const maxDimensionsSize = 3;
 	const targetUrl = req.body.url;
@@ -62,7 +60,6 @@ function getDimensionsArray(dimensions) {
 function generatingCritical(targetUrl, targetDimensions) {
 
 	logger.debug('Start CCSS for ', targetUrl);
-	console.log('Start CCSS for ', targetUrl);
 
 	return new Promise((resolve, reject) => {
 
@@ -77,7 +74,6 @@ function generatingCritical(targetUrl, targetDimensions) {
 			resolve(output);
 		}).error(err => {
 			logger.debug('Critical Error ', err);
-			console.log(err);
 			reject(new Error('Failed generating CCSS'));
 		}).catch(err => {
 			if (err.code === 'ENOTFOUND') {
