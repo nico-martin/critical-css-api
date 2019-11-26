@@ -3,4 +3,3 @@ node_modules/
 log/
 .env
 app-env
-dist/
