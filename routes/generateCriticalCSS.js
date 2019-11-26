@@ -59,6 +59,7 @@ function getDimensionsArray(dimensions) {
 function generatingCritical(targetUrl, targetDimensions) {
 
 	logger.debug('Start CCSS for ', targetUrl);
+	console.log('Start CCSS for ', targetUrl);
 
 	return new Promise((resolve, reject) => {
 
