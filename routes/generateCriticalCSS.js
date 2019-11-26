@@ -77,7 +77,8 @@ function generatingCritical(targetUrl, targetDimensions) {
 			resolve(output);
 		}).error(err => {
 			logger.debug('Critical Error ', err);
-			reject(new Error('Faild generating CCSS'));
+			console.log(err);
+			reject(new Error('Failed generating CCSS'));
 		}).catch(err => {
 			if (err.code === 'ENOTFOUND') {
 				logger.debug('URL not valid ');
