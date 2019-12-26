@@ -1,7 +1,6 @@
 import critical from 'critical';
 import fs from 'fs';
 import path from 'path';
-import logger from '../helpers/log';
 
 const targetFolder = 'dist/';
 

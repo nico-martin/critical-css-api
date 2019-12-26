@@ -5,7 +5,6 @@ const PORT = process.env.PORT || 9090;
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import logger from "./helpers/log";
 
 let app = express();
 app.use(cors());
