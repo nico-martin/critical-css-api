@@ -9,6 +9,7 @@ import {
   userSignIn,
   userJwtValidate,
 } from './routes/user';
+import { projectPut, projectDelete } from './routes/project';
 
 import { connectDB } from './models';
 
@@ -39,6 +40,13 @@ app.put('/user/', userPut);
 app.delete('/user/:userID', userDelete);
 app.post('/user/signin/', userSignIn);
 app.get('/user/jwt/validate/', userJwtValidate);
+
+/**
+ * Projects
+ */
+
+app.put('/project/', projectPut);
+app.delete('/project/:projectID/', projectDelete);
 
 /**
  * General error handling

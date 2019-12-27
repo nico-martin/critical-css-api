@@ -6,14 +6,18 @@ export default mongoose.model(
     id: {
       type: Number,
       required: true,
+      unique: true,
     },
     url: {
       type: String,
-      unique: true,
+      required: true,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+    },
+    key: {
+      type: String,
     },
   })
 );

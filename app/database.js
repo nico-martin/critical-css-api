@@ -1,7 +1,13 @@
 import models from './models';
-import { normalizeUser, getNewUserId, randomKey } from './helpers';
+import {
+  normalizeUser,
+  getNewUserId,
+  getNewProjectId,
+  verifyBaseUrl,
+} from './helpers';
 import { generateToken } from './auth';
 import sha1 from 'js-sha1';
+import { randomBytes } from 'crypto';
 
 export const User = {
   add: async userObject => {
@@ -40,12 +46,20 @@ export const User = {
   },
   get: async id => {
     const user = await models.User.findOne({ id });
+    const projects = await models.Project.find({ user: user._id });
     if (user) {
       return {
         id: user.id,
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
+        projects: projects.map(project => {
+          return {
+            id: project.id,
+            url: project.url,
+            key: project.key,
+          };
+        }),
       };
     }
     return false;
@@ -73,28 +87,41 @@ export const User = {
   },
 };
 
-/*
-export const list = {
-  save: async (uuid, values) => {
-    let list = await models.List.findOne({uuid});
-    if (!list) {
-      list = await models.List.create({uuid})
+export const Project = {
+  add: async (userID, url) => {
+    const user = await models.User.findOne({
+      id: userID,
+    });
+    if (!user) {
+      return false;
+    }
+    url = verifyBaseUrl(url);
+    let project = await models.Project.findOne({ url, user: user._id });
+    if (!project) {
+      const newId = await getNewProjectId();
+      project = await models.Project.create({
+        url,
+        id: newId,
+        user: user._id,
+      });
     }
 
-    await models.List.updateOne({_id: list._id}, values);
-    return await models.List.findOne({uuid});
+    await models.Project.updateOne(
+      { _id: project._id },
+      {
+        key: randomBytes(35).toString('hex'),
+      }
+    );
+    const updtedProject = await models.Project.findOne({ _id: project._id });
+
+    return {
+      id: updtedProject.id,
+      url: updtedProject.url,
+      key: updtedProject.key,
+    };
   },
-  delete: async (uuid) => {
-    return await models.List.deleteOne({uuid});
-  }
-};
-
-export const item = {
-  add: async (list, text) => {
-
+  delete: async id => {
+    const deleted = await models.Project.deleteOne({ id });
+    return deleted.deletedCount === 1;
   },
-  delete: async (itemKey) => {
-
-  }
 };
- */

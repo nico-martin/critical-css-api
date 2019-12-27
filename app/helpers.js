@@ -5,7 +5,7 @@ export const getNewUserId = async () => {
   const latestUser = await models.User.find()
     .sort({ _id: -1 })
     .limit(1);
-  if (!latestUser) {
+  if (!latestUser || Object.keys(latestUser).length === 0) {
     return 1;
   }
   return latestUser[0].id + 1;
@@ -30,15 +30,16 @@ export const normalizeUser = (user, acceptId = false) => {
   return userObject;
 };
 
-export const randomKey = (key = '') => {
-  let d = new Date().getTime();
-  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(
-    c
-  ) {
-    const r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
+export const getNewProjectId = async () => {
+  const latesProject = await models.Project.find()
+    .sort({ _id: -1 })
+    .limit(1);
+  if (!latesProject || Object.keys(latesProject).length === 0) {
+    return 1;
+  }
+  return latesProject[0].id + 1;
+};
 
-  return sha1(uuid + key);
+export const verifyBaseUrl = url => {
+  return url;
 };
