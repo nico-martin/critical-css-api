@@ -19,7 +19,7 @@ export default mongoose.model(
       type: String,
       required: false,
     },
-    accessToken: {
+    password: {
       type: String,
       required: false,
     },

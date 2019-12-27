@@ -1,7 +1,14 @@
 import 'dotenv/config';
 
 import generateCriticalCSS from './routes/generateCriticalCSS';
-import { userGetAll, userGet, userPut, userDelete } from './routes/user';
+import {
+  userGetAll,
+  userGet,
+  userPut,
+  userDelete,
+  userSignIn,
+  userJwtValidate,
+} from './routes/user';
 
 import { connectDB } from './models';
 
@@ -30,6 +37,8 @@ app.get('/user/', userGetAll);
 app.get('/user/:userID', userGet);
 app.put('/user/', userPut);
 app.delete('/user/:userID', userDelete);
+app.post('/user/signin/', userSignIn);
+app.get('/user/jwt/validate/', userJwtValidate);
 
 /**
  * General error handling

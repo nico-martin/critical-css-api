@@ -1,4 +1,7 @@
 import models from './models';
+import { normalizeUser, getNewUserId, randomKey } from './helpers';
+import { generateToken } from './auth';
+import sha1 from 'js-sha1';
 
 export const User = {
   add: async userObject => {
@@ -13,6 +16,10 @@ export const User = {
         email: userObject.email,
         id: newUserId,
       });
+    }
+
+    if ('password' in userObject) {
+      userObject.password = sha1(userObject.password);
     }
 
     await models.User.updateOne({ _id: user._id }, userObject);
@@ -54,29 +61,16 @@ export const User = {
       };
     });
   },
-};
-
-const getNewUserId = async () => {
-  const latestUser = await models.User.find()
-    .sort({ _id: -1 })
-    .limit(1);
-  if (!latestUser) {
-    return 1;
-  }
-  return latestUser[0].id + 1;
-};
-
-const normalizeUser = (user, acceptId = false) => {
-  const keys = ['email', 'firstname', 'lastname', ...(acceptId ? ['id'] : [])];
-  const userObject = {};
-
-  Object.entries(user).map(e => {
-    if (keys.indexOf(e[0]) !== -1) {
-      userObject[e[0]] = e[1];
+  verify: async (email, password) => {
+    const user = await models.User.findOne({
+      email,
+      password: sha1(password),
+    });
+    if (user) {
+      return generateToken(user.id);
     }
-  });
-
-  return userObject;
+    return false;
+  },
 };
 
 /*
