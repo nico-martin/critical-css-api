@@ -1,6 +1,11 @@
-import generateCriticalCSS from './routes/generateCriticalCSS';
+import 'dotenv/config';
 
-const PORT = process.env.PORT || 9090;
+import generateCriticalCSS from './routes/generateCriticalCSS';
+import { userGetAll, userGet, userPut, userDelete } from './routes/user';
+
+import { connectDB } from './models';
+
+const PORT = process.env.PORT || 9092;
 
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -10,15 +15,60 @@ let app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.listen(PORT, function () {
-	console.log(`Critical CSS API listening on port ${PORT}!`);
-});
-
 app.post('/', generateCriticalCSS);
-app.get('/', (req, res) => {
-	res.status(405).send('Please use a POST-Request');
+app.post('/key/isValid', (req, res) => {
+  res.status(200).send({
+    valid: true,
+  });
 });
 
-app.post('/key/isValid', (req, res) => {
-	res.status(200).send('true');
+/**
+ * Users
+ */
+
+app.get('/user/', userGetAll);
+app.get('/user/:userID', userGet);
+app.put('/user/', userPut);
+app.delete('/user/:userID', userDelete);
+
+/**
+ * General error handling
+ */
+
+app.all('*', (req, res, next) => {
+  next({
+    status: 400,
+    code: 'invalid_request',
+    text: 'Invalid request',
+  });
+});
+
+app.use((err, req, res, next) => {
+  const defaultError = {
+    status: 500,
+    code: 'error',
+    text: 'An error occured',
+    trace: '',
+  };
+
+  const error = {
+    ...defaultError,
+    ...err,
+  };
+
+  res.status(error.status).send({
+    code: error.code,
+    error: error.text,
+    data: {
+      status: error.status,
+      trace: error.trace,
+    },
+  });
+});
+
+/**
+ * Listen
+ */
+connectDB().then(async () => {
+  app.listen(PORT, () => console.log(`APP listening to ${PORT}!`));
 });

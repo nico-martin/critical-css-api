@@ -58,7 +58,7 @@ function getDimensionsArray(dimensions) {
  */
 function generatingCritical(targetUrl, targetDimensions) {
 
-	logger.debug('Start CCSS for ', targetUrl);
+	console.log('Start CCSS for ', targetUrl);
 
 	return new Promise((resolve, reject) => {
 
@@ -69,18 +69,18 @@ function generatingCritical(targetUrl, targetDimensions) {
 			dimensions: targetDimensions,
 			minify: true
 		}).then(output => {
-			logger.debug('Critical successfully generated');
+			console.log('Critical successfully generated');
 			resolve(output);
 		}).error(err => {
-			logger.debug('Critical Error ', err);
+			console.log('Critical Error ', err);
 			reject(new Error('Failed generating CCSS'));
 		}).catch(err => {
 			if (err.code === 'ENOTFOUND') {
-				logger.debug('URL not valid ');
-				logger.debug('Host', err.host, err.port);
+				console.log('URL not valid ');
+				console.log('Host', err.host, err.port);
 				reject(new Error('Not valid Host ' + err.host));
 			} else {
-				logger.debug('System error Message', err);
+				console.log('System error Message', err);
 				reject(new Error('Critical System Error' + err));
 			}
 		});
@@ -90,13 +90,13 @@ function generatingCritical(targetUrl, targetDimensions) {
 function deleteTempFiles() {
 	fs.readdir(targetFolder, (err, files) => {
 		if (err) {
-			logger.debug(err);
+			console.log(err);
 		}
 
 		for (const file of files) {
 			fs.unlink(path.join(targetFolder, file), err => {
 				if (err) {
-					logger.debug(err);
+					console.log(err);
 				}
 			});
 		}
