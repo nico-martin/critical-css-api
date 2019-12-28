@@ -14,31 +14,37 @@ export const User = {
     if (!userObject.email) {
       return false;
     }
-    userObject = normalizeUser(userObject);
+
     let user = await models.User.findOne({ email: userObject.email });
-    if (!user) {
-      const newUserId = await getNewUserId();
-      user = await models.User.create({
-        email: userObject.email,
-        id: newUserId,
-      });
+    if (user) {
+      return false;
     }
 
-    if ('password' in userObject) {
-      userObject.password = sha1(userObject.password);
+    const newUserId = await getNewUserId();
+    user = await models.User.create({
+      email: userObject.email,
+      id: newUserId,
+    });
+
+    return await User.update(user.id, userObject);
+  },
+  update: async (userID, userObject) => {
+    userObject = normalizeUser(userObject);
+    let user = await models.User.findOne({ id: userID });
+    if (!user) {
+      return false;
+    }
+
+    if ('email' in userObject) {
+      const emailUser = await models.User.findOne({ email: userObject.email });
+      if (emailUser && emailUser.id !== user.id) {
+        console.log(emailUser.id, user.id);
+        return false;
+      }
     }
 
     await models.User.updateOne({ _id: user._id }, userObject);
-    const updatedUser = await models.User.findOne({
-      email: userObject.email,
-    });
-
-    return {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      firstname: updatedUser.firstname,
-      lastname: updatedUser.lastname,
-    };
+    return await User.get(user.id);
   },
   delete: async id => {
     const deleted = await models.User.deleteOne({ id });

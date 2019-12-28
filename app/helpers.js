@@ -27,6 +27,10 @@ export const normalizeUser = (user, acceptId = false) => {
     }
   });
 
+  if ('password' in userObject) {
+    userObject.password = sha1(userObject.password);
+  }
+
   return userObject;
 };
 

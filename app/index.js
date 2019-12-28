@@ -5,6 +5,7 @@ import {
   userGetAll,
   userGet,
   userPut,
+  userUpdate,
   userDelete,
   userSignIn,
   userJwtValidate,
@@ -31,12 +32,17 @@ app.post('/key/isValid', (req, res) => {
 });
 
 /**
+ * Todo: authenticate User if not Master
+ */
+
+/**
  * Users
  */
 
 app.get('/user/', userGetAll);
 app.get('/user/:userID', userGet);
 app.put('/user/', userPut);
+app.put('/user/:userID', userUpdate);
 app.delete('/user/:userID', userDelete);
 app.post('/user/signin/', userSignIn);
 app.get('/user/jwt/validate/', userJwtValidate);

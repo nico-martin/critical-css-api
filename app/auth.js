@@ -15,11 +15,18 @@ export const getUserByToken = token => {
   } catch (err) {
     return false;
   }
-  return decoded.userId;
+  return parseInt(decoded.userId);
 };
 
 export const generateToken = userId => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: 60 * 60 * 24,
   });
+};
+
+export const authenticate = token => {
+  if (isMaster(token)) {
+    return 'master';
+  }
+  return getUserByToken(token);
 };
