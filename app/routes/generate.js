@@ -1,15 +1,20 @@
 import critical from 'critical';
 import fs from 'fs';
 import path from 'path';
-import { Project } from './../database';
+import { Project, Requests } from './../database';
 
-const targetFolder = 'dist/';
+const outputFolder = 'output/';
+const tmpFolder = outputFolder + 'tmp/';
+const cssFolder = outputFolder + 'projects/';
 
 export const generateCriticalCSS = async (req, res, next) => {
   const maxDimensionsSize = 3;
   const token = req.body.token;
   const targetUrl = req.body.url;
   const dimensions = req.body.dimensions;
+  !fs.existsSync(outputFolder) && fs.mkdirSync(outputFolder);
+  !fs.existsSync(tmpFolder) && fs.mkdirSync(tmpFolder);
+  !fs.existsSync(cssFolder) && fs.mkdirSync(cssFolder);
 
   const project = await Project.getByApiKey(token);
   if (!project || targetUrl.indexOf(project.url) !== 0) {
@@ -30,9 +35,32 @@ export const generateCriticalCSS = async (req, res, next) => {
   }
 
   generatingCritical(targetUrl, dimensionsArray).then(
-    response => {
-      res.status(201).send({ css: response });
-      deleteTempFiles();
+    async response => {
+      const date = new Date();
+      const folder = cssFolder + project.user + '/';
+      const key = (targetUrl + '-' + date.getTime())
+        .replace('http://', '')
+        .replace('https://', '')
+        .replace('www.', '')
+        .replace(/\./g, '-')
+        .replace(/\//g, '-')
+        .replace(/--/g, '-');
+
+      const file = folder + key + '.css';
+      !fs.existsSync(folder) && fs.mkdirSync(folder);
+      fs.writeFile(file, response, err => {
+        if (err) {
+          next({
+            status: 500,
+            code: 'generation_failed',
+            text: 'CSS File could not be generated',
+          });
+        } else {
+          Requests.add(project._id, file, date);
+          deleteTempFiles();
+          res.status(201).send(response);
+        }
+      });
     },
     err => {
       next({
@@ -82,7 +110,7 @@ function generatingCritical(targetUrl, targetDimensions) {
   return new Promise((resolve, reject) => {
     critical
       .generate({
-        base: targetFolder,
+        base: tmpFolder,
         src: targetUrl,
         dest: 'main-critical.css',
         dimensions: targetDimensions,
@@ -110,13 +138,13 @@ function generatingCritical(targetUrl, targetDimensions) {
 }
 
 function deleteTempFiles() {
-  fs.readdir(targetFolder, (err, files) => {
+  fs.readdir(tmpFolder, (err, files) => {
     if (err) {
       console.log(err);
     }
 
     for (const file of files) {
-      fs.unlink(path.join(targetFolder, file), err => {
+      fs.unlink(path.join(tmpFolder, file), err => {
         if (err) {
           console.log(err);
         }

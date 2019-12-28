@@ -137,8 +137,19 @@ export const Project = {
     }
     const user = await models.User.findOne({ _id: project.user });
     return {
+      _id: project._id,
       url: project.url,
       user: user.id,
     };
+  },
+};
+
+export const Requests = {
+  add: async (projectID, file, date = new Date()) => {
+    return await models.Requests.create({
+      project: projectID,
+      file,
+      generated: date,
+    });
   },
 };
