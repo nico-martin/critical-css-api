@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import generateCriticalCSS from './routes/generateCriticalCSS';
+import { generateCriticalCSS } from './routes/generate';
 import {
   userGetAll,
   userGet,

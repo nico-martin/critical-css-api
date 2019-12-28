@@ -130,4 +130,15 @@ export const Project = {
     const deleted = await models.Project.deleteOne({ id });
     return deleted.deletedCount === 1;
   },
+  getByApiKey: async key => {
+    const project = await models.Project.findOne({ key });
+    if (!project) {
+      return false;
+    }
+    const user = await models.User.findOne({ _id: project.user });
+    return {
+      url: project.url,
+      user: user.id,
+    };
+  },
 };

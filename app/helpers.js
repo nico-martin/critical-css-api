@@ -45,5 +45,6 @@ export const getNewProjectId = async () => {
 };
 
 export const verifyBaseUrl = url => {
+  // todo: remove trainling slashes and check if is a valid URL
   return url;
 };

@@ -2,4 +2,4 @@ node_modules/
 .idea/
 log/
 .env
-app-env
+dist
