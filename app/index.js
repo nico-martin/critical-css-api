@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import { generateCriticalCSS } from './routes/generate';
+import { generateCriticalCSS, validateToken } from './routes/generate';
 import {
   userGetAll,
   userGet,
@@ -8,6 +8,7 @@ import {
   userUpdate,
   userDelete,
   userSignIn,
+  userUpdateCredits,
   userJwtValidate,
 } from './routes/user';
 import { projectPut, projectDelete } from './routes/project';
@@ -25,15 +26,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.post('/', generateCriticalCSS);
-app.post('/key/isValid', (req, res) => {
-  res.status(200).send({
-    valid: true,
-  });
-});
-
-/**
- * Todo: authenticate User if not Master
- */
+app.post('/key/isValid', validateToken);
 
 /**
  * Users
@@ -46,6 +39,7 @@ app.put('/user/:userID', userUpdate);
 app.delete('/user/:userID', userDelete);
 app.post('/user/signin/', userSignIn);
 app.get('/user/jwt/validate/', userJwtValidate);
+app.put('/credits/', userUpdateCredits);
 
 /**
  * Projects

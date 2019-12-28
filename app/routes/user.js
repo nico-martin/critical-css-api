@@ -91,6 +91,20 @@ export const userSignIn = async (req, res, next) => {
   res.send({ token: authToken });
 };
 
+export const userUpdateCredits = async (req, res, next) => {
+  if (!isMaster(req.headers.auth)) {
+    next(forbiddenObject);
+  }
+
+  const userID = parseInt(req.body.userID);
+  const credits = parseInt(req.body.credits);
+  const newCredits = await User.creditsUpdate(userID, credits);
+  if (newCredits === false) {
+    next();
+  }
+  res.send({ credits: newCredits });
+};
+
 export const userJwtValidate = (req, res, next) => {
   res.send({ user: getUserByToken(req.headers.auth) });
 };

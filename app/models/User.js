@@ -25,5 +25,8 @@ export default mongoose.model(
       type: String,
       required: false,
     },
+    credits: {
+      type: Number,
+    },
   })
 );

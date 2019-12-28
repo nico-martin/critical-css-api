@@ -24,6 +24,7 @@ export const User = {
     user = await models.User.create({
       email: userObject.email,
       id: newUserId,
+      credits: 0,
     });
 
     return await User.update(user.id, userObject);
@@ -59,6 +60,7 @@ export const User = {
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
+        credits: user.credits,
         projects: projects.map(project => {
           return {
             id: project.id,
@@ -90,6 +92,25 @@ export const User = {
       return generateToken(user.id);
     }
     return false;
+  },
+  creditsUpdate: async (userID, credits) => {
+    const oldCredits = await User.creditsGet(userID);
+    if (oldCredits === false) {
+      return false;
+    }
+    await models.User.updateOne(
+      { id: userID },
+      { credits: oldCredits + credits }
+    );
+    return await User.creditsGet(userID);
+  },
+  creditsGet: async userID => {
+    let user = await models.User.findOne({ id: userID });
+    if (!user) {
+      return false;
+    }
+
+    return user.credits ? user.credits : 0;
   },
 };
 

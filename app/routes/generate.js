@@ -1,11 +1,28 @@
 import critical from 'critical';
 import fs from 'fs';
 import path from 'path';
-import { Project, Requests } from './../database';
+import { Project, Requests, User } from './../database';
 
 const outputFolder = 'output/';
 const tmpFolder = outputFolder + 'tmp/';
 const cssFolder = outputFolder + 'projects/';
+
+export const validateToken = async (req, res, next) => {
+  const token = req.body.token;
+  const targetUrl = req.body.url;
+  const project = await Project.getByApiKey(token);
+  if (!project || targetUrl.indexOf(project.url) !== 0) {
+    next({
+      status: 403,
+      code: 'invalid_token',
+      text: 'The given token is not valid or does not match the project url',
+    });
+  }
+
+  res.send({
+    valid: true,
+  });
+};
 
 export const generateCriticalCSS = async (req, res, next) => {
   const maxDimensionsSize = 3;
@@ -20,8 +37,8 @@ export const generateCriticalCSS = async (req, res, next) => {
   if (!project || targetUrl.indexOf(project.url) !== 0) {
     next({
       status: 403,
-      code: 'invalid_key',
-      text: 'The given apiKey is not valid or does not match the project url',
+      code: 'invalid_token',
+      text: 'The given token is not valid or does not match the project url',
     });
   }
 
@@ -31,6 +48,15 @@ export const generateCriticalCSS = async (req, res, next) => {
       status: 400,
       code: 'invalid_dimensions',
       text: `Max Dimensions Size of ${maxDimensionsSize} reached`,
+    });
+  }
+
+  const credits = await User.creditsGet(project.user);
+  if (credits <= 0) {
+    next({
+      status: 400,
+      code: 'no_credits',
+      text: 'There are not enough credits',
     });
   }
 
@@ -48,7 +74,7 @@ export const generateCriticalCSS = async (req, res, next) => {
 
       const file = folder + key + '.css';
       !fs.existsSync(folder) && fs.mkdirSync(folder);
-      fs.writeFile(file, response, err => {
+      fs.writeFile(file, response, async err => {
         if (err) {
           next({
             status: 500,
@@ -56,9 +82,12 @@ export const generateCriticalCSS = async (req, res, next) => {
             text: 'CSS File could not be generated',
           });
         } else {
-          Requests.add(project._id, file, date);
+          await Requests.add(project._id, file, date);
           deleteTempFiles();
-          res.status(201).send(response);
+          res.status(201).send({
+            css: response,
+            credits: await User.creditsUpdate(project.user, -1),
+          });
         }
       });
     },
