@@ -151,8 +151,8 @@ export const Project = {
     const deleted = await models.Project.deleteOne({ id });
     return deleted.deletedCount === 1;
   },
-  getByApiKey: async key => {
-    const project = await models.Project.findOne({ key });
+  getByID: async id => {
+    const project = await models.Project.findOne({ id });
     if (!project) {
       return false;
     }
@@ -162,6 +162,13 @@ export const Project = {
       url: project.url,
       user: user.id,
     };
+  },
+  getByApiKey: async key => {
+    const project = await models.Project.findOne({ key });
+    if (!project) {
+      return false;
+    }
+    return await Project.getByID(project.id);
   },
 };
 

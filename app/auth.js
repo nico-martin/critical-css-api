@@ -6,9 +6,9 @@ export const forbiddenObject = {
   text: "You don't have permission to access",
 };
 
-export const isMaster = key => key === process.env.MASTER_KEY;
+const isMaster = key => key === process.env.MASTER_KEY;
 
-export const getUserByToken = token => {
+const getUserByToken = token => {
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -24,7 +24,8 @@ export const generateToken = userId => {
   });
 };
 
-export const authenticate = token => {
+export const authenticate = headers => {
+  const token = (headers.authorization || '').replace('Bearer ', '');
   if (isMaster(token)) {
     return 'master';
   }

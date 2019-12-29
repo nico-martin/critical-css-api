@@ -1,18 +1,13 @@
-import { isMaster, forbiddenObject, getUserByToken } from './../auth';
+import { authenticate, forbiddenObject } from './../auth';
 import { Project, User } from './../database';
 
 export const projectPut = async (req, res, next) => {
-  if (!isMaster(req.headers.auth)) {
+  const auth = authenticate(req.headers);
+  if (auth !== 'master') {
     next(forbiddenObject);
   }
 
-  let userID = false;
-  if (isMaster(req.headers.auth) && req.body.userID) {
-    userID = req.body.userID;
-  } else {
-    userID = getUserByToken(req.headers.token);
-  }
-
+  const userID = auth === 'master' && req.body.userID ? req.body.userID : auth;
   if (!userID || !req.body.url) {
     next();
   }
@@ -29,10 +24,22 @@ export const projectPut = async (req, res, next) => {
 };
 
 export const projectDelete = async (req, res, next) => {
-  if (!isMaster(req.headers.auth)) {
+  const auth = authenticate(req.headers);
+  if (!auth) {
     next(forbiddenObject);
   }
 
-  const project = await Project.delete(parseInt(req.params.projectID));
-  res.send({ deleted: project });
+  const project = await Project.getByID(parseInt(req.params.projectID));
+  if (!project) {
+    next({
+      status: 404,
+      code: 'project_not_found',
+      text: 'This project does not exist',
+    });
+  }
+  if (auth !== 'master' && auth !== project.user) {
+    next(forbiddenObject);
+  }
+  const projectDeleted = await Project.delete(parseInt(req.params.projectID));
+  res.send({ deleted: projectDeleted });
 };

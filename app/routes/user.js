@@ -1,13 +1,8 @@
-import {
-  isMaster,
-  forbiddenObject,
-  getUserByToken,
-  authenticate,
-} from './../auth';
+import { forbiddenObject, authenticate } from './../auth';
 import { User } from './../database';
 
 export const userGetAll = async (req, res, next) => {
-  if (!isMaster(req.headers.auth)) {
+  if (authenticate(req.headers) !== 'master') {
     next(forbiddenObject);
   }
   const users = await User.getAll();
@@ -15,7 +10,7 @@ export const userGetAll = async (req, res, next) => {
 };
 
 export const userGet = async (req, res, next) => {
-  const auth = authenticate(req.headers.auth);
+  const auth = authenticate(req.headers);
   const userID = parseInt(
     req.params.userID === 'me' ? auth : req.params.userID
   );
@@ -36,7 +31,7 @@ export const userGet = async (req, res, next) => {
 };
 
 export const userPut = async (req, res, next) => {
-  if (!isMaster(req.headers.auth)) {
+  if (authenticate(req.headers) !== 'master') {
     next(forbiddenObject);
   }
   const user = await User.add(req.body);
@@ -51,7 +46,7 @@ export const userPut = async (req, res, next) => {
 };
 
 export const userUpdate = async (req, res, next) => {
-  const auth = authenticate(req.headers.auth);
+  const auth = authenticate(req.headers);
   const userID = parseInt(
     req.params.userID === 'me' ? auth : req.params.userID
   );
@@ -73,7 +68,7 @@ export const userUpdate = async (req, res, next) => {
 };
 
 export const userDelete = async (req, res, next) => {
-  if (!isMaster(req.headers.auth)) {
+  if (authenticate(req.headers) !== 'master') {
     next(forbiddenObject);
   }
   const user = await User.delete(parseInt(req.params.userID));
@@ -92,7 +87,7 @@ export const userSignIn = async (req, res, next) => {
 };
 
 export const userUpdateCredits = async (req, res, next) => {
-  if (!isMaster(req.headers.auth)) {
+  if (authenticate(req.headers) !== 'master') {
     next(forbiddenObject);
   }
 
@@ -106,5 +101,6 @@ export const userUpdateCredits = async (req, res, next) => {
 };
 
 export const userJwtValidate = (req, res, next) => {
-  res.send({ user: getUserByToken(req.headers.auth) });
+  const auth = authenticate(req.headers);
+  res.send({ user: auth === 'master' ? false : auth });
 };
