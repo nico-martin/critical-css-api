@@ -21,6 +21,7 @@ const promiseRetryOptions = {
 
 export const connectDB = () => {
   return promiseRetry((retry, number) => {
+    console.log('Try MongoDB Connect');
     return mongoose.connect(process.env.DATABASE_URL, options).catch(retry)
   }, promiseRetryOptions)
 };
