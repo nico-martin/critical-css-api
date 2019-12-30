@@ -1,8 +1,14 @@
-import { forbiddenObject, authenticate } from './../auth';
+import {
+  forbiddenObject,
+  authenticate,
+  authenticateClient,
+  authenticateUser,
+  authenticateMaster,
+} from './../auth';
 import { User } from './../database';
 
 export const userGetAll = async (req, res, next) => {
-  if (authenticate(req.headers) !== 'master') {
+  if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
   const users = await User.getAll();
@@ -10,12 +16,8 @@ export const userGetAll = async (req, res, next) => {
 };
 
 export const userGet = async (req, res, next) => {
-  const auth = authenticate(req.headers);
-  const userID = parseInt(
-    req.params.userID === 'me' ? auth : req.params.userID
-  );
-
-  if (auth !== 'master' && auth !== userID) {
+  const userID = authenticateUser(req.headers, req.params.userID);
+  if (!userID) {
     next(forbiddenObject);
   }
 
@@ -31,7 +33,7 @@ export const userGet = async (req, res, next) => {
 };
 
 export const userPut = async (req, res, next) => {
-  if (authenticate(req.headers) !== 'master') {
+  if (!authenticateClient(req.headers)) {
     next(forbiddenObject);
   }
   const user = await User.add(req.body);
@@ -46,12 +48,8 @@ export const userPut = async (req, res, next) => {
 };
 
 export const userUpdate = async (req, res, next) => {
-  const auth = authenticate(req.headers);
-  const userID = parseInt(
-    req.params.userID === 'me' ? auth : req.params.userID
-  );
-
-  if (auth !== 'master' && auth !== userID) {
+  const userID = authenticateUser(req.headers, req.params.userID);
+  if (!userID) {
     next(forbiddenObject);
   }
 
@@ -68,7 +66,7 @@ export const userUpdate = async (req, res, next) => {
 };
 
 export const userDelete = async (req, res, next) => {
-  if (authenticate(req.headers) !== 'master') {
+  if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
   const user = await User.delete(parseInt(req.params.userID));
@@ -76,6 +74,9 @@ export const userDelete = async (req, res, next) => {
 };
 
 export const userSignIn = async (req, res, next) => {
+  if (!authenticateClient(req.headers)) {
+    next(forbiddenObject);
+  }
   if (!req.body.email || !req.body.password) {
     next();
   }
@@ -87,7 +88,7 @@ export const userSignIn = async (req, res, next) => {
 };
 
 export const userUpdateCredits = async (req, res, next) => {
-  if (authenticate(req.headers) !== 'master') {
+  if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
 

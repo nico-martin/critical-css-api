@@ -1,13 +1,8 @@
-import { authenticate, forbiddenObject } from './../auth';
+import { forbiddenObject, authenticateUser } from './../auth';
 import { Project, User } from './../database';
 
 export const projectPut = async (req, res, next) => {
-  const auth = authenticate(req.headers);
-  if (auth !== 'master') {
-    next(forbiddenObject);
-  }
-
-  const userID = auth === 'master' && req.body.userID ? req.body.userID : auth;
+  const userID = authenticateUser(req.headers, req.body.userID);
   if (!userID || !req.body.url) {
     next();
   }
@@ -24,11 +19,6 @@ export const projectPut = async (req, res, next) => {
 };
 
 export const projectDelete = async (req, res, next) => {
-  const auth = authenticate(req.headers);
-  if (!auth) {
-    next(forbiddenObject);
-  }
-
   const project = await Project.getByID(parseInt(req.params.projectID));
   if (!project) {
     next({
@@ -37,7 +27,7 @@ export const projectDelete = async (req, res, next) => {
       text: 'This project does not exist',
     });
   }
-  if (auth !== 'master' && auth !== project.user) {
+  if (!authenticateUser(req.headers, project.user)) {
     next(forbiddenObject);
   }
   const projectDeleted = await Project.delete(parseInt(req.params.projectID));
