@@ -7,7 +7,6 @@ export const forbiddenObject = {
 };
 
 const isMaster = key => key === process.env.MASTER_KEY;
-const isClient = key => key === process.env.CLIENT_KEY;
 
 const getUserByToken = token => {
   let decoded;
@@ -30,14 +29,15 @@ export const authenticate = headers => {
   if (isMaster(token)) {
     return 'master';
   }
-  if (isClient(token)) {
-    return 'client';
-  }
   return getUserByToken(token);
 };
 
 export const authenticateClient = headers => {
-  return ['master', 'client'].indexOf(authenticate(headers)) !== -1;
+  return (
+    authenticate(headers) === 'master' ||
+    typeof process.env.ALLOWED_HOSTS === 'undefined' ||
+    process.env.ALLOWED_HOSTS.split(', ').indexOf(headers.origin) !== -1
+  );
 };
 
 export const authenticateUser = (headers, userID) => {
