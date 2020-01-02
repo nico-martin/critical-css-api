@@ -25,6 +25,10 @@ export default mongoose.model(
       type: String,
       required: false,
     },
+
+    passwordTemp: {
+      type: Boolean,
+    },
     credits: {
       type: Number,
     },

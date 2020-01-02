@@ -9,21 +9,23 @@ const options = {
   reconnectTries: 60,
   reconnectInterval: 1000,
   poolSize: 10,
-  bufferMaxEntries: 0 // If not connected, return errors immediately rather than waiting for reconnect
+  bufferMaxEntries: 0, // If not connected, return errors immediately rather than waiting for reconnect
 };
 
 const promiseRetryOptions = {
   retries: options.reconnectTries,
   factor: 2,
   minTimeout: options.reconnectInterval,
-  maxTimeout: 5000
+  maxTimeout: 5000,
 };
 
 export const connectDB = () => {
   return promiseRetry((retry, number) => {
-    console.log(`Try MongoDB Connect to ${process.env.DATABASE_URL} - No. ${number}`);
-    return mongoose.connect(process.env.DATABASE_URL, options).catch(retry)
-  }, promiseRetryOptions)
+    console.log(
+      `Try MongoDB Connect to ${process.env.DATABASE_URL} - No. ${number}`
+    );
+    return mongoose.connect(process.env.DATABASE_URL, options).catch(retry);
+  }, promiseRetryOptions);
 };
 
 export default { User, Project, Requests };

@@ -61,6 +61,7 @@ export const User = {
         firstname: user.firstname,
         lastname: user.lastname,
         credits: user.credits,
+        passwordTemp: user.passwordTemp,
         projects: projects.map(project => {
           return {
             id: project.id,
@@ -71,6 +72,13 @@ export const User = {
       };
     }
     return false;
+  },
+  getByEmail: async email => {
+    const user = await models.User.findOne({ email });
+    if (!user) {
+      return false;
+    }
+    return await User.get(user.id);
   },
   getAll: async () => {
     const users = await models.User.find({});

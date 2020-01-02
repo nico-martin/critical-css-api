@@ -7,6 +7,7 @@ import {
 } from './../auth';
 import { sendMail } from './../mail';
 import { User } from './../database';
+import { makeRandomString } from './../helpers';
 
 export const userGetAll = async (req, res, next) => {
   if (!authenticateMaster(req.headers)) {
@@ -87,6 +88,43 @@ export const userSignIn = async (req, res, next) => {
     next();
   }
   res.send({ token: authToken });
+};
+
+export const userResetPassword = async (req, res, next) => {
+  if (!authenticateClient(req.headers)) {
+    next(forbiddenObject);
+  }
+
+  if (!req.body.email) {
+    next();
+  }
+
+  const user = await User.getByEmail(req.body.email);
+  if (!user) {
+    next({
+      status: 404,
+      code: 'not_found',
+      text: 'This user does not exist',
+    });
+  }
+
+  const newPassword = makeRandomString(8);
+  const updatedUser = await User.update(user.id, {
+    password: newPassword,
+    passwordTemp: true,
+  });
+
+  if (!updatedUser) {
+    next({
+      status: 500,
+      code: 'update_failed',
+      text: 'User could not be updated',
+    });
+  }
+
+  await sendMail(user.email, 'Password Changed', newPassword);
+
+  res.send({ updated: true });
 };
 
 export const userUpdateCredits = async (req, res, next) => {

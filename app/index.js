@@ -8,6 +8,7 @@ import {
   userUpdate,
   userDelete,
   userSignIn,
+  userResetPassword,
   userUpdateCredits,
   userJwtValidate,
 } from './routes/user';
@@ -49,6 +50,7 @@ if (
   app.put('/user/:userID', userUpdate);
   app.delete('/user/:userID', userDelete);
   app.post('/user/signin/', userSignIn);
+  app.post('/user/reset-password/', userResetPassword);
   app.get('/user/jwt/validate/', userJwtValidate);
   app.put('/credits/', userUpdateCredits);
 
