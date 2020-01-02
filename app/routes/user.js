@@ -5,12 +5,14 @@ import {
   authenticateUser,
   authenticateMaster,
 } from './../auth';
+import { sendMail } from './../mail';
 import { User } from './../database';
 
 export const userGetAll = async (req, res, next) => {
   if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
+  await sendMail().catch(console.error);
   const users = await User.getAll();
   res.send(users);
 };
@@ -77,6 +79,7 @@ export const userSignIn = async (req, res, next) => {
   if (!authenticateClient(req.headers)) {
     next(forbiddenObject);
   }
+
   if (!req.body.email || !req.body.password) {
     next();
   }
