@@ -12,7 +12,6 @@ export const userGetAll = async (req, res, next) => {
   if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
-  await sendMail().catch(console.error);
   const users = await User.getAll();
   res.send(users);
 };
