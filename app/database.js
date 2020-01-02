@@ -8,6 +8,7 @@ import {
 import { generateToken } from './auth';
 import sha1 from 'js-sha1';
 import { randomBytes } from 'crypto';
+import { makeRandomString } from './helpers';
 
 export const User = {
   add: async userObject => {
@@ -39,13 +40,28 @@ export const User = {
     if ('email' in userObject) {
       const emailUser = await models.User.findOne({ email: userObject.email });
       if (emailUser && emailUser.id !== user.id) {
-        console.log(emailUser.id, user.id);
         return false;
       }
     }
 
     await models.User.updateOne({ _id: user._id }, userObject);
     return await User.get(user.id);
+  },
+  updatePassword: async (userID, password = '') => {
+    let user = await models.User.findOne({ id: userID });
+    if (!user) {
+      return false;
+    }
+    const passwordTemp = password === '';
+    password = sha1(password === '' ? makeRandomString(6) : password);
+    await models.User.updateOne(
+      { _id: user._id },
+      {
+        password,
+        passwordTemp,
+      }
+    );
+    return password;
   },
   delete: async id => {
     const deleted = await models.User.deleteOne({ id });

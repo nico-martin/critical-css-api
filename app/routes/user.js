@@ -67,6 +67,30 @@ export const userUpdate = async (req, res, next) => {
   res.send(user);
 };
 
+export const userUpdatePassword = async (req, res, next) => {
+  const userID = authenticateUser(req.headers, req.params.userID);
+  if (!userID) {
+    next(forbiddenObject);
+  }
+
+  if (!req.body.password) {
+    next();
+  }
+
+  const password = await User.updatePassword(userID, req.body.password);
+  if (!password) {
+    next({
+      status: 400,
+      code: 'update_failed',
+      text:
+        'User could not be updated. Either the user does not exist or the email is already in use',
+    });
+  }
+  res.send({
+    updated: true,
+  });
+};
+
 export const userDelete = async (req, res, next) => {
   if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
@@ -108,13 +132,9 @@ export const userResetPassword = async (req, res, next) => {
     });
   }
 
-  const newPassword = makeRandomString(8);
-  const updatedUser = await User.update(user.id, {
-    password: newPassword,
-    passwordTemp: true,
-  });
+  const password = await User.updatePassword(user.id);
 
-  if (!updatedUser) {
+  if (!password) {
     next({
       status: 500,
       code: 'update_failed',
@@ -122,7 +142,7 @@ export const userResetPassword = async (req, res, next) => {
     });
   }
 
-  await sendMail(user.email, 'Password Changed', newPassword);
+  await sendMail(user.email, 'Password Changed', password);
 
   res.send({ updated: true });
 };

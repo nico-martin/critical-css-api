@@ -1,5 +1,4 @@
 import models from './models';
-import sha1 from 'js-sha1';
 
 export const getNewUserId = async () => {
   const latestUser = await models.User.find()
@@ -12,14 +11,7 @@ export const getNewUserId = async () => {
 };
 
 export const normalizeUser = (user, acceptId = false) => {
-  const keys = [
-    'email',
-    'firstname',
-    'lastname',
-    'password',
-    'passwordTemp',
-    ...(acceptId ? ['id'] : []),
-  ];
+  const keys = ['email', 'firstname', 'lastname', ...(acceptId ? ['id'] : [])];
   const userObject = {};
 
   Object.entries(user).map(e => {
@@ -27,10 +19,6 @@ export const normalizeUser = (user, acceptId = false) => {
       userObject[e[0]] = e[1];
     }
   });
-
-  if ('password' in userObject) {
-    userObject.password = sha1(userObject.password);
-  }
 
   return userObject;
 };

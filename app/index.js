@@ -11,6 +11,7 @@ import {
   userResetPassword,
   userUpdateCredits,
   userJwtValidate,
+  userUpdatePassword,
 } from './routes/user';
 import { projectPut, projectDelete } from './routes/project';
 
@@ -48,6 +49,7 @@ if (
   app.get('/user/:userID', userGet);
   app.put('/user/', userPut);
   app.put('/user/:userID', userUpdate);
+  app.put('/user/password/:userID', userUpdatePassword);
   app.delete('/user/:userID', userDelete);
   app.post('/user/signin/', userSignIn);
   app.post('/user/reset-password/', userResetPassword);
