@@ -107,7 +107,11 @@ export const userSignIn = async (req, res, next) => {
   if (!req.body.email || !req.body.password) {
     next();
   }
-  const authToken = await User.verify(req.body.email, req.body.password);
+  const authToken = await User.verify(
+    req.body.email,
+    req.body.password,
+    req.body.remember
+  );
   if (!authToken) {
     next();
   }

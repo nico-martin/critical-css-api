@@ -107,13 +107,13 @@ export const User = {
       };
     });
   },
-  verify: async (email, password) => {
+  verify: async (email, password, remember = false) => {
     const user = await models.User.findOne({
       email,
       password: sha1(password),
     });
     if (user) {
-      return generateToken(user.id);
+      return generateToken(user.id, remember ? 60 * 60 * 24 * 30 : 60 * 60 * 4);
     }
     return false;
   },

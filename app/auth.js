@@ -18,9 +18,9 @@ const getUserByToken = token => {
   return parseInt(decoded.userId);
 };
 
-export const generateToken = userId => {
+export const generateToken = (userId, expires) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: 60 * 60 * 24,
+    expiresIn: expires,
   });
 };
 
