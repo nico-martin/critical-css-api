@@ -52,8 +52,8 @@ export const User = {
     if (!user) {
       return false;
     }
-    password = password === '' ? makeRandomString(6) : password;
     const passwordTemp = password === '';
+    password = password === '' ? makeRandomString(6) : password;
     const passwordHash = sha1(password);
     await models.User.updateOne(
       { _id: user._id },
