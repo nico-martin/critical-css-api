@@ -4,6 +4,7 @@ import { generateCriticalCSS, validateToken } from './routes/generate';
 import {
   userGetAll,
   userGet,
+  userGetProjects,
   userPut,
   userUpdate,
   userDelete,
@@ -47,6 +48,7 @@ if (
 
   app.get('/user/', userGetAll);
   app.get('/user/:userID', userGet);
+  app.get('/user/:userID/projects', userGetProjects);
   app.put('/user/', userPut);
   app.put('/user/:userID', userUpdate);
   app.put('/user/password/:userID', userUpdatePassword);

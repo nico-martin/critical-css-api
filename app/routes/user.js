@@ -34,6 +34,23 @@ export const userGet = async (req, res, next) => {
   res.send(user);
 };
 
+export const userGetProjects = async (req, res, next) => {
+  const userID = authenticateUser(req.headers, req.params.userID);
+  if (!userID) {
+    next(forbiddenObject);
+  }
+
+  const projects = await User.getProjects(userID);
+  if (!projects) {
+    next({
+      status: 404,
+      code: 'not_found',
+      text: 'This user does not exist',
+    });
+  }
+  res.send(projects);
+};
+
 export const userPut = async (req, res, next) => {
   if (!authenticateClient(req.headers)) {
     next(forbiddenObject);

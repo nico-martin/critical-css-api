@@ -79,16 +79,26 @@ export const User = {
         lastname: user.lastname,
         credits: user.credits,
         passwordTemp: user.passwordTemp,
-        projects: projects.map(project => {
-          return {
-            id: project.id,
-            url: project.url,
-            key: project.key,
-          };
-        }),
       };
     }
     return false;
+  },
+  getProjects: async id => {
+    const user = await models.User.findOne({ id });
+    if (!user) {
+      return false;
+    }
+    const projects = await models.Project.find({ user: user._id });
+    const projectPromises = projects.map(async project => {
+      const requests = await Requests.getByProject(project._id);
+      return {
+        id: project.id,
+        url: project.url,
+        key: project.key,
+        requests,
+      };
+    });
+    return await Promise.all(projectPromises);
   },
   getByEmail: async email => {
     const user = await models.User.findOne({ email });
@@ -203,6 +213,15 @@ export const Requests = {
       project: projectID,
       file,
       generated: date,
+    });
+  },
+  getByProject: async projectID => {
+    const requests = await models.Requests.find({ project: projectID });
+    return requests.map(request => {
+      return {
+        file: request.file,
+        generated: request.generated,
+      };
     });
   },
 };
