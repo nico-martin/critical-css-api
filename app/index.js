@@ -38,6 +38,7 @@ if (
   let app = express();
   app.use(cors());
   app.use(bodyParser.json());
+  app.use(express.static('public'));
 
   app.post('/', generateCriticalCSS);
   app.post('/key/isValid', validateToken);

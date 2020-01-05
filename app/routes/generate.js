@@ -3,9 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { Project, Requests, User } from './../database';
 
-const outputFolder = 'output/';
+const outputFolder = 'public/';
 const tmpFolder = outputFolder + 'tmp/';
-const cssFolder = outputFolder + 'projects/';
+const cssFolder = outputFolder + 'css/';
 
 export const validateToken = async (req, res, next) => {
   const token = req.body.token;
@@ -29,8 +29,14 @@ export const generateCriticalCSS = async (req, res, next) => {
   const token = req.body.token;
   const targetUrl = req.body.url;
   const dimensions = req.body.dimensions;
+  const requestKey =
+    new Date().getTime().toString() +
+    Math.floor(Math.random() * (9999 - 1000) + 1000);
+  const requestTmpFolder = tmpFolder + requestKey + '/';
+
   !fs.existsSync(outputFolder) && fs.mkdirSync(outputFolder);
   !fs.existsSync(tmpFolder) && fs.mkdirSync(tmpFolder);
+  !fs.existsSync(requestTmpFolder) && fs.mkdirSync(requestTmpFolder);
   !fs.existsSync(cssFolder) && fs.mkdirSync(cssFolder);
 
   const project = await Project.getByApiKey(token);
@@ -84,12 +90,12 @@ export const generateCriticalCSS = async (req, res, next) => {
         } else {
           await Requests.add(
             project._id,
-            file,
+            file.replace(outputFolder, ''),
             targetUrl,
             dimensionsArray,
             date
           );
-          deleteTempFiles();
+          deleteTempFiles(requestTmpFolder);
           res.status(201).send({
             css: response,
             credits: await User.creditsUpdate(project.user, -1),
@@ -172,14 +178,14 @@ function generatingCritical(targetUrl, targetDimensions) {
   });
 }
 
-function deleteTempFiles() {
-  fs.readdir(tmpFolder, (err, files) => {
+function deleteTempFiles(folder) {
+  fs.readdir(folder, (err, files) => {
     if (err) {
       console.log(err);
     }
 
     for (const file of files) {
-      fs.unlink(path.join(tmpFolder, file), err => {
+      fs.unlink(path.join(folder, file), err => {
         if (err) {
           console.log(err);
         }
