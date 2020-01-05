@@ -17,5 +17,11 @@ export default mongoose.model(
       type: Date,
       required: true,
     },
+    url: {
+      type: String,
+    },
+    sizes: {
+      type: String,
+    },
   })
 );

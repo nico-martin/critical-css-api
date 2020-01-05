@@ -208,11 +208,18 @@ export const Project = {
 };
 
 export const Requests = {
-  add: async (projectID, file, date = new Date()) => {
+  add: async (projectID, file, url, sizes, date = new Date()) => {
+    let sizesStrings = [];
+    sizes.forEach(size => {
+      sizesStrings.push(`${size.width}x${size.height}`);
+    });
+
     return await models.Requests.create({
       project: projectID,
       file,
       generated: date,
+      url,
+      sizes: sizesStrings.join(', '),
     });
   },
   getByProject: async projectID => {
@@ -221,6 +228,8 @@ export const Requests = {
       return {
         file: request.file,
         generated: request.generated,
+        sizes: request.sizes,
+        url: request.url,
       };
     });
   },

@@ -82,7 +82,13 @@ export const generateCriticalCSS = async (req, res, next) => {
             text: 'CSS File could not be generated',
           });
         } else {
-          await Requests.add(project._id, file, date);
+          await Requests.add(
+            project._id,
+            file,
+            targetUrl,
+            dimensionsArray,
+            date
+          );
           deleteTempFiles();
           res.status(201).send({
             css: response,
