@@ -96,10 +96,8 @@ export const generateCriticalCSS = async (req, res, next) => {
             date
           );
           deleteTempFiles(requestTmpFolder);
-          res.status(201).send({
-            css: response,
-            credits: await User.creditsUpdate(project.user, -1),
-          });
+          res.setHeader('Content-Type', 'text/css');
+          res.status(201).send(response);
         }
       });
     },
