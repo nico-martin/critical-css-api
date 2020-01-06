@@ -7,7 +7,6 @@ import {
 } from './../auth';
 import { sendMail } from './../mail';
 import { User } from './../database';
-import { makeRandomString } from './../helpers';
 
 export const userGetAll = async (req, res, next) => {
   if (!authenticateMaster(req.headers)) {
@@ -163,7 +162,12 @@ export const userResetPassword = async (req, res, next) => {
     });
   }
 
-  await sendMail(user.email, 'Password Changed', password);
+  let mailContent = `<p>Hello ${user.firstname ? user.firstname + ' ' : ''}${
+    user.lastname ? user.lastname + ' ' : ''
+  }`;
+  mailContent += `</p><p>You requested a temporary password for <a href="https://app.critial-css.io">https://app.critial-css.io</a>. Please change your password after your login</p>`;
+  mailContent += `<p>Password: <span>${password}</span></p><p>Kind regards</p>`;
+  await sendMail(user.email, 'Password Changed', mailContent);
 
   res.send({ updated: true });
 };
