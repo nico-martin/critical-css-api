@@ -1,14 +1,19 @@
-import critical from 'critical';
+//import critical from 'critical';
 import fs from 'fs';
 import path from 'path';
-import { Project, Requests, User } from './../database';
+import { Project, Requests, User } from '../database';
 import criticalCSS from './../criticalCSS/';
+import express from 'express';
 
 const outputFolder = 'public/';
 const tmpFolder = outputFolder + 'tmp/';
 const cssFolder = outputFolder + 'css/';
 
-export const validateToken = async (req, res, next) => {
+export const validateToken = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const token = req.body.token;
   const targetUrl = req.body.url;
   const project = await Project.getByApiKey(token);
@@ -25,7 +30,11 @@ export const validateToken = async (req, res, next) => {
   });
 };
 
-export const generateCriticalCSS = async (req, res, next) => {
+export const generateCriticalCSS = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const maxDimensionsSize = 3;
   const token = req.body.token;
   const targetUrl = req.body.url;

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
+import { IRequestsDB } from '../types/db';
 
-export default mongoose.model(
+export default mongoose.model<IRequestsDB>(
   'Requests',
   new mongoose.Schema({
     project: {

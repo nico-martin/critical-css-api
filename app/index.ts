@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { ErrorReturn } from './types/express';
 
 import { generateCriticalCSS, validateToken } from './routes/generate';
 import {
@@ -25,7 +26,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import winston from 'winston';
 
-const logger = winston.createLogger({
+const logger: winston.Logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
   defaultMeta: { service: 'user-service' },
@@ -81,36 +82,50 @@ if (
    * General error handling
    */
 
-  app.all('*', (req, res, next) => {
-    next({
-      status: 400,
-      code: 'invalid_request',
-      text: 'Invalid request',
-    });
-  });
+  app.all(
+    '*',
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      next({
+        status: 400,
+        code: 'invalid_request',
+        text: 'Invalid request',
+      });
+    }
+  );
 
-  app.use((err, req, res, next) => {
-    const defaultError = {
-      status: 500,
-      code: 'error',
-      text: 'An error occured',
-      trace: '',
-    };
+  app.use(
+    (
+      err: express.Errback,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      const defaultError: ErrorReturn = {
+        status: 500,
+        code: 'error',
+        text: 'An error occured',
+        trace: '',
+      };
 
-    const error = {
-      ...defaultError,
-      ...err,
-    };
+      const error: ErrorReturn = {
+        ...defaultError,
+        ...err,
+      };
 
-    res.status(error.status).send({
-      code: error.code,
-      error: error.text,
-      data: {
-        status: error.status,
-        trace: error.trace,
-      },
-    });
-  });
+      res.status(error.status).send({
+        code: error.code,
+        error: error.text,
+        data: {
+          status: error.status,
+          trace: error.trace,
+        },
+      });
+    }
+  );
 
   /**
    * Listen

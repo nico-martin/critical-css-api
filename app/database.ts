@@ -1,4 +1,5 @@
-import models from './models';
+import models from './models/index';
+import { IProject, IUser, IRequest } from './types/db';
 import {
   normalizeUser,
   getNewUserId,
@@ -6,12 +7,12 @@ import {
   verifyBaseUrl,
 } from './helpers';
 import { generateToken } from './auth';
-import sha1 from 'js-sha1';
+import sha1 from 'sha1';
 import { randomBytes } from 'crypto';
 import { makeRandomString } from './helpers';
 
 export const User = {
-  add: async userObject => {
+  add: async (userObject: IUser): Promise<IUser | false> => {
     if (!userObject.email) {
       return false;
     }
@@ -30,8 +31,8 @@ export const User = {
 
     return await User.update(user.id, userObject);
   },
-  update: async (userID, userObject) => {
-    userObject = normalizeUser(userObject);
+  update: async (userID: number, userObject: IUser): Promise<IUser | false> => {
+    //userObject = normalizeUser(userObject);
     let user = await models.User.findOne({ id: userID });
     if (!user) {
       return false;
@@ -47,7 +48,10 @@ export const User = {
     await models.User.updateOne({ _id: user._id }, userObject);
     return await User.get(user.id);
   },
-  updatePassword: async (userID, password = '') => {
+  updatePassword: async (
+    userID: number,
+    password: string = ''
+  ): Promise<string | false> => {
     let user = await models.User.findOne({ id: userID });
     if (!user) {
       return false;
@@ -64,13 +68,13 @@ export const User = {
     );
     return password;
   },
-  delete: async id => {
+  delete: async (id: number): Promise<boolean> => {
     const deleted = await models.User.deleteOne({ id });
     return deleted.deletedCount === 1;
   },
-  get: async id => {
+  get: async (id: number): Promise<IUser | false> => {
     const user = await models.User.findOne({ id });
-    const projects = await models.Project.find({ user: user._id });
+    //const projects = await models.Project.find({ user: user ? user._id : 0 });
     if (user) {
       return {
         id: user.id,
@@ -83,7 +87,7 @@ export const User = {
     }
     return false;
   },
-  getProjects: async id => {
+  getProjects: async (id: number): Promise<IProject[] | false> => {
     const user = await models.User.findOne({ id });
     if (!user) {
       return false;
@@ -100,14 +104,14 @@ export const User = {
     });
     return await Promise.all(projectPromises);
   },
-  getByEmail: async email => {
+  getByEmail: async (email: string): Promise<IUser | false> => {
     const user = await models.User.findOne({ email });
     if (!user) {
       return false;
     }
     return await User.get(user.id);
   },
-  getAll: async () => {
+  getAll: async (): Promise<Array<IUser>> => {
     const users = await models.User.find({});
     return users.map(user => {
       return {
@@ -118,7 +122,11 @@ export const User = {
       };
     });
   },
-  verify: async (email, password, remember = false) => {
+  verify: async (
+    email: string,
+    password: string,
+    remember: boolean = false
+  ): Promise<string | false> => {
     const user = await models.User.findOne({
       email,
       password: sha1(password),
@@ -128,7 +136,10 @@ export const User = {
     }
     return false;
   },
-  creditsUpdate: async (userID, credits) => {
+  creditsUpdate: async (
+    userID: number,
+    credits: number
+  ): Promise<number | false> => {
     const oldCredits = await User.creditsGet(userID);
     if (oldCredits === false) {
       return false;
@@ -139,7 +150,7 @@ export const User = {
     );
     return await User.creditsGet(userID);
   },
-  creditsGet: async userID => {
+  creditsGet: async (userID: number): Promise<number | false> => {
     let user = await models.User.findOne({ id: userID });
     if (!user) {
       return false;
@@ -150,7 +161,7 @@ export const User = {
 };
 
 export const Project = {
-  add: async (userID, url) => {
+  add: async (userID: number, url: string): Promise<IProject | false> => {
     const user = await models.User.findOne({
       id: userID,
     });
@@ -176,17 +187,19 @@ export const Project = {
     );
     const updtedProject = await models.Project.findOne({ _id: project._id });
 
-    return {
-      id: updtedProject.id,
-      url: updtedProject.url,
-      key: updtedProject.key,
-    };
+    return updtedProject
+      ? {
+          id: updtedProject.id,
+          url: updtedProject.url,
+          key: updtedProject.key,
+        }
+      : false;
   },
-  delete: async id => {
+  delete: async (id: number): Promise<boolean> => {
     const deleted = await models.Project.deleteOne({ id });
     return deleted.deletedCount === 1;
   },
-  getByID: async id => {
+  getByID: async (id: number): Promise<IProject | false> => {
     const project = await models.Project.findOne({ id });
     if (!project) {
       return false;
@@ -198,7 +211,7 @@ export const Project = {
       user: user.id,
     };
   },
-  getByApiKey: async key => {
+  getByApiKey: async (key: string): Promise<IProject | false> => {
     const project = await models.Project.findOne({ key });
     if (!project) {
       return false;
@@ -208,11 +221,17 @@ export const Project = {
 };
 
 export const Requests = {
-  add: async (projectID, file, url, sizes, date = new Date()) => {
-    let sizesStrings = [];
-    sizes.forEach(size => {
-      sizesStrings.push(`${size.width}x${size.height}`);
-    });
+  add: async (
+    projectID: number,
+    file: string,
+    url: string,
+    sizes: Array<{ width: number; height: number }>,
+    date: Date = new Date()
+  ) => {
+    const sizesStrings = sizes.reduce(
+      (acc, size) => [size.width + 'x' + size.height, ...acc],
+      []
+    );
 
     return await models.Requests.create({
       project: projectID,
@@ -222,9 +241,9 @@ export const Requests = {
       sizes: sizesStrings.join(', '),
     });
   },
-  getByProject: async projectID => {
+  getByProject: async (projectID: string): Promise<IRequest> => {
     const requests = await models.Requests.find({ project: projectID });
-    return requests.map(request => {
+    return requests.map((request: IRequest) => {
       return {
         file: request.file,
         generated: request.generated,

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
+import { IUserDB } from '../types/db';
 
-export default mongoose.model(
+export default mongoose.model<IUserDB>(
   'User',
   new mongoose.Schema({
     id: {

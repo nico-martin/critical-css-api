@@ -9,7 +9,8 @@ const options = {
   reconnectTries: 60,
   reconnectInterval: 1000,
   poolSize: 10,
-  bufferMaxEntries: 0, // If not connected, return errors immediately rather than waiting for reconnect
+  bufferMaxEntries: 0,
+  useUnifiedTopology: true,
 };
 
 const promiseRetryOptions = {
@@ -19,13 +20,11 @@ const promiseRetryOptions = {
   maxTimeout: 5000,
 };
 
-export const connectDB = () => {
-  return promiseRetry((retry, number) => {
-    console.log(
-      `Try MongoDB Connect to ${process.env.DATABASE_URL} - No. ${number}`
-    );
-    return mongoose.connect(process.env.DATABASE_URL, options).catch(retry);
-  }, promiseRetryOptions);
-};
+export const connectDB = () =>
+  promiseRetry(
+    retry =>
+      mongoose.connect(String(process.env.DATABASE_URL), options).catch(retry),
+    promiseRetryOptions
+  );
 
 export default { User, Project, Requests };
