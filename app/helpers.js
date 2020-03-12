@@ -1,4 +1,5 @@
 import models from './models';
+import puppeteer from 'puppeteer';
 
 export const getNewUserId = async () => {
   const latestUser = await models.User.find()

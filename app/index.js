@@ -23,6 +23,17 @@ const PORT = process.env.PORT || 9092;
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import winston from 'winston';
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
 
 if (
   !process.env.DATABASE_URL ||

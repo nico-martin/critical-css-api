@@ -2,6 +2,7 @@ import critical from 'critical';
 import fs from 'fs';
 import path from 'path';
 import { Project, Requests, User } from './../database';
+import criticalCSS from './../criticalCSS/';
 
 const outputFolder = 'public/';
 const tmpFolder = outputFolder + 'tmp/';
@@ -145,6 +146,21 @@ function getDimensionsArray(dimensions) {
  */
 function generatingCritical(targetUrl, targetDimensions) {
   console.log('Start CCSS for ', targetUrl);
+  console.log('Start CCSS for dim ', targetDimensions);
+
+  return new Promise((resolve, reject) => {
+    criticalCSS
+      .generate({
+        src: targetUrl,
+        dimensions: targetDimensions,
+      })
+      .then(css => {
+        console.log('PCCSS done');
+        resolve(css);
+      })
+      .catch(err => reject(err));
+  });
+  /*
 
   return new Promise((resolve, reject) => {
     critical
@@ -174,9 +190,10 @@ function generatingCritical(targetUrl, targetDimensions) {
         }
       });
   });
+   */
 }
 
-function deleteTempFiles(folder) {
+const deleteTempFiles = folder => {
   fs.readdir(folder, (err, files) => {
     if (err) {
       console.log(err);
@@ -190,4 +207,4 @@ function deleteTempFiles(folder) {
       });
     }
   });
-}
+};
