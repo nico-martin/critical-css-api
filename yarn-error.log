@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\nicos\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @types/js-sha1
+  C:\Program Files\nodejs\node.exe C:\Users\nicos\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @types/penthouse
 
 PATH: 
   C:\Users\nicos\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\nicos\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Intel\iCLS Client;C:\Program Files\Intel\iCLS Client;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\Program Files\Git\cmd;C:\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon\C;C:\Program Files\Git\ProgramData\ComposerSetup\binC;C:\Program Files\Git\ProgramData\ComposerSetup\bin;C:\wpcs\vendor\bin;C:\Program Files (x86)\Subversion\bin;C:\Program Files\TortoiseSVN\bin;C:\Program Files\Common Files\Intel\WirelessCommon;C:\Program Files\PuTTY;C:\WINDOWS\System32\OpenSSH\C;C:\Program Files\Git\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon\C;C:\Program Files\Git\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon\C;C:\Program Files\Git\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Microsoft VS Code\binC;C:\Program Files\Git\ProgramData\ComposerSetup\bin;C:\WINDOWS\System32\OpenSSH\C;C:\Program Files\Git\ProgramData\ComposerSetup\binC;C:\Program Files\Git\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DALC;C:\Program Files\Git\ProgramData\ComposerSetup\bin;C:\Users\nicos\AppData\Roaming\nvm;C:\Program Files\nodejsC;C:\Program Files\Git\Program Files\MongoDB\Server\4.0\bin;C:\Program Files\Microsoft VS Code\binC;C:\Program Files\Git\Program Files\Intel\WiFi\bin;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Microsoft VS Code\binC;C:\Program Files\Git\Program Files (x86)\Yarn\bin\C;C:\Program Files\Git\Program Files (x86)\Yarn\bin;C:\WINDOWS\System32\OpenSSH;C:\MAMP\bin\php\php7.0.21;C:\Ruby23\bin;C:\Ruby23-x64\bin;C:\Users\nicos\AppData\Local\Microsoft\WindowsApps;C:\Users\nicos\AppData\Roaming\Composer\vendor\bin;C:\MAMP\bin\php\php7.0.0;C:\Users\nicos\AppData\Roaming\npm;C:\MAMP\bin\mysql\bin;C:\Program Files\Microsoft VS Code\bin;C:\Users\nicos\AppData\Local\now-cli;C:\Program Files\nodejs;C:\Users\nicos\AppData\Local\atom\bin;C:\Users\nicos\AppData\Local\Yarn\bin;%USERPROFILE%\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
@@ -14,7 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fjs-sha1: Not found
+  Error: https://registry.yarnpkg.com/@types%2fpenthouse: Not found
       at Request.params.callback [as _callback] (C:\Users\nicos\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:66947:18)
       at Request.self.callback (C:\Users\nicos\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:140665:22)
       at Request.emit (events.js:198:13)
@@ -42,6 +42,7 @@ npm manifest:
       "@types/jsonwebtoken": "^8.3.8",
       "@types/mongoose": "^5.7.3",
       "@types/promise-retry": "^1.1.3",
+      "@types/sha1": "^1.1.2",
       "body-parser": "^1.19.0",
       "clean-css": "^4.2.1",
       "cors": "^2.8.5",
@@ -58,6 +59,7 @@ npm manifest:
       "penthouse": "^2.2.2",
       "promise-retry": "^1.1.1",
       "puppeteer": "^2.0.0",
+      "sha1": "^1.1.1",
       "winston": "^3.2.1"
     },
     "devDependencies": {
@@ -200,6 +202,13 @@ Lockfile:
     dependencies:
       "@types/express-serve-static-core" "*"
       "@types/mime" "*"
+  
+  "@types/sha1@^1.1.2":
+    version "1.1.2"
+    resolved "https://registry.yarnpkg.com/@types/sha1/-/sha1-1.1.2.tgz#e4a101952a6a1ea341431b5107894c8b0e0fcaa7"
+    integrity sha512-qL23ImGRNLvDvLXL6EmE41QTAaBfwGgSOfxmytyOwfFSF0xj7BnhhHff8lcv6DpLWt2I5q+LLQ6iIKL+zev9mw==
+    dependencies:
+      "@types/node" "*"
   
   accepts@~1.3.7:
     version "1.3.7"
@@ -610,6 +619,11 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.7.0.tgz#90094849f0937f2eedc2425d0d28a9e5f0cbad9e"
     integrity sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==
   
+  "charenc@>= 0.0.1":
+    version "0.0.2"
+    resolved "https://registry.yarnpkg.com/charenc/-/charenc-0.0.2.tgz#c0a1d2f3a7092e03774bfa83f14c0fc5790a8667"
+    integrity sha1-wKHS86cJLgN3S/qD8UwPxXkKhmc=
+  
   cheerio@0.22.0, cheerio@^0.22.0:
     version "0.22.0"
     resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-0.22.0.tgz#a9baa860a3f9b595a6b81b1a86873121ed3a269e"
@@ -925,6 +939,11 @@ Lockfile:
       semver "^5.5.0"
       shebang-command "^1.2.0"
       which "^1.2.9"
+  
+  "crypt@>= 0.0.1":
+    version "0.0.2"
+    resolved "https://registry.yarnpkg.com/crypt/-/crypt-0.0.2.tgz#88d7ff7ec0dfb86f713dc87bbb42d044d3e6c41b"
+    integrity sha1-iNf/fsDfuG9xPch7u0LQRNPmxBs=
   
   cryptiles@2.x.x:
     version "2.0.5"
@@ -4017,6 +4036,14 @@ Lockfile:
     version "1.1.1"
     resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
     integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
+  
+  sha1@^1.1.1:
+    version "1.1.1"
+    resolved "https://registry.yarnpkg.com/sha1/-/sha1-1.1.1.tgz#addaa7a93168f393f19eb2b15091618e2700f848"
+    integrity sha1-rdqnqTFo85PxnrKxUJFhjicA+Eg=
+    dependencies:
+      charenc ">= 0.0.1"
+      crypt ">= 0.0.1"
   
   shebang-command@^1.2.0:
     version "1.2.0"

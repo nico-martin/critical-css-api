@@ -4,7 +4,7 @@ import { IProjectDB } from '../types/db';
 export default mongoose.model<IProjectDB>(
   'Project',
   new mongoose.Schema({
-    id: {
+    ID: {
       type: Number,
       required: true,
       unique: true,

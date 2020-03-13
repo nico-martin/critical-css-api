@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Project, Requests, User } from '../database';
-import criticalCSS from './../criticalCSS/';
+import * as criticalCSS from './../criticalCSS';
 import express from 'express';
 
 const outputFolder = 'public/';
@@ -49,7 +49,7 @@ export const generateCriticalCSS = async (
   !fs.existsSync(requestTmpFolder) && fs.mkdirSync(requestTmpFolder);
   !fs.existsSync(cssFolder) && fs.mkdirSync(cssFolder);
 
-  const project = await Project.getByApiKey(token);
+  let project = await Project.getByApiKey(token);
   if (!project || targetUrl.indexOf(project.url) !== 0) {
     next({
       status: 403,
@@ -67,7 +67,7 @@ export const generateCriticalCSS = async (
     });
   }
 
-  const credits = await User.creditsGet(project.user);
+  const credits = await User.creditsGet(Object(project).user);
   if (credits <= 0) {
     next({
       status: 400,
@@ -79,7 +79,7 @@ export const generateCriticalCSS = async (
   generatingCritical(targetUrl, dimensionsArray).then(
     async response => {
       const date = new Date();
-      const folder = cssFolder + project.user + '/';
+      const folder = cssFolder + Object(project).user + '/';
       const key = (targetUrl + '-' + date.getTime())
         .replace('http://', '')
         .replace('https://', '')
@@ -99,7 +99,7 @@ export const generateCriticalCSS = async (
           });
         } else {
           await Requests.add(
-            project._id,
+            Object(project)._id,
             file.replace(outputFolder, ''),
             targetUrl,
             dimensionsArray,
@@ -126,7 +126,7 @@ export const generateCriticalCSS = async (
  * @param dimensions
  * @returns {Array} with Dimensions
  */
-function getDimensionsArray(dimensions) {
+const getDimensionsArray = (dimensions: Array<criticalCSS.Dimension>) => {
   let dimensionsArray = [];
 
   if (dimensions == null) {
@@ -145,7 +145,7 @@ function getDimensionsArray(dimensions) {
     }
   }
   return dimensionsArray;
-}
+};
 
 /**
  * Returns a Critical CSS File
@@ -153,7 +153,10 @@ function getDimensionsArray(dimensions) {
  * @param targetDimensions  Json Obj. of Dimensions
  * @returns {Promise}   bool Promise
  */
-function generatingCritical(targetUrl, targetDimensions) {
+const generatingCritical = (
+  targetUrl: string,
+  targetDimensions: Array<criticalCSS.Dimension>
+) => {
   console.log('Start CCSS for ', targetUrl);
   console.log('Start CCSS for dim ', targetDimensions);
 
@@ -200,9 +203,9 @@ function generatingCritical(targetUrl, targetDimensions) {
       });
   });
    */
-}
+};
 
-const deleteTempFiles = folder => {
+const deleteTempFiles = (folder: string) => {
   fs.readdir(folder, (err, files) => {
     if (err) {
       console.log(err);
