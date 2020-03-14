@@ -1,5 +1,5 @@
-import { forbiddenObject, authenticateUser } from './../auth';
-import { Project, User } from './../database';
+import { forbiddenObject, authenticateUser } from '../auth';
+import { Project, User } from '../database';
 import express from 'express';
 
 export const projectPut = async (
