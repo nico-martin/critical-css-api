@@ -189,7 +189,7 @@ export const userResetPassword = async (
     });
   }
 
-  const password = await User.updatePassword(Object(user).id);
+  const password = await User.updatePassword(Object(user).ID);
 
   if (!password) {
     next({
