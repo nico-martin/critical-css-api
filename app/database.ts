@@ -1,4 +1,5 @@
-import models from './models';
+import models from './models/index';
+import { IProject, IUser, IRequest } from './types/db';
 import {
   normalizeUser,
   getNewUserId,
@@ -6,12 +7,12 @@ import {
   verifyBaseUrl,
 } from './helpers';
 import { generateToken } from './auth';
-import sha1 from 'js-sha1';
+import sha1 from 'sha1';
 import { randomBytes } from 'crypto';
 import { makeRandomString } from './helpers';
 
 export const User = {
-  add: async userObject => {
+  add: async (userObject: IUser): Promise<IUser | false> => {
     if (!userObject.email) {
       return false;
     }
@@ -24,31 +25,34 @@ export const User = {
     const newUserId = await getNewUserId();
     user = await models.User.create({
       email: userObject.email,
-      id: newUserId,
+      ID: newUserId,
       credits: 0,
     });
 
-    return await User.update(user.id, userObject);
+    return await User.update(user.ID, userObject);
   },
-  update: async (userID, userObject) => {
-    userObject = normalizeUser(userObject);
-    let user = await models.User.findOne({ id: userID });
+  update: async (userID: number, userObject: IUser): Promise<IUser | false> => {
+    //userObject = normalizeUser(userObject);
+    let user = await models.User.findOne({ ID: userID });
     if (!user) {
       return false;
     }
 
     if ('email' in userObject) {
       const emailUser = await models.User.findOne({ email: userObject.email });
-      if (emailUser && emailUser.id !== user.id) {
+      if (emailUser && emailUser.ID !== user.ID) {
         return false;
       }
     }
 
     await models.User.updateOne({ _id: user._id }, userObject);
-    return await User.get(user.id);
+    return await User.get(user.ID);
   },
-  updatePassword: async (userID, password = '') => {
-    let user = await models.User.findOne({ id: userID });
+  updatePassword: async (
+    userID: number,
+    password: string = ''
+  ): Promise<string | false> => {
+    let user = await models.User.findOne({ ID: userID });
     if (!user) {
       return false;
     }
@@ -64,16 +68,16 @@ export const User = {
     );
     return password;
   },
-  delete: async id => {
-    const deleted = await models.User.deleteOne({ id });
+  delete: async (ID: number): Promise<boolean> => {
+    const deleted = await models.User.deleteOne({ ID });
     return deleted.deletedCount === 1;
   },
-  get: async id => {
-    const user = await models.User.findOne({ id });
-    const projects = await models.Project.find({ user: user._id });
+  get: async (ID: number): Promise<IUser | false> => {
+    const user = await models.User.findOne({ ID });
+    //const projects = await models.Project.find({ user: user ? user._id : 0 });
     if (user) {
       return {
-        id: user.id,
+        ID: user.ID,
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
@@ -83,16 +87,16 @@ export const User = {
     }
     return false;
   },
-  getProjects: async id => {
-    const user = await models.User.findOne({ id });
+  getProjects: async (ID: number): Promise<IProject[] | false> => {
+    const user = await models.User.findOne({ ID });
     if (!user) {
       return false;
     }
     const projects = await models.Project.find({ user: user._id });
     const projectPromises = projects.map(async project => {
-      const requests = await Requests.getByProject(project._id);
+      const requests = await Requests.getByProject(Object(project).ID);
       return {
-        id: project.id,
+        ID: project.ID,
         url: project.url,
         key: project.key,
         requests,
@@ -100,47 +104,54 @@ export const User = {
     });
     return await Promise.all(projectPromises);
   },
-  getByEmail: async email => {
+  getByEmail: async (email: string): Promise<IUser | false> => {
     const user = await models.User.findOne({ email });
     if (!user) {
       return false;
     }
-    return await User.get(user.id);
+    return await User.get(user.ID);
   },
-  getAll: async () => {
+  getAll: async (): Promise<Array<IUser>> => {
     const users = await models.User.find({});
     return users.map(user => {
       return {
-        id: user.id,
+        ID: user.ID,
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
       };
     });
   },
-  verify: async (email, password, remember = false) => {
+  verify: async (
+    email: string,
+    password: string,
+    remember: boolean = false
+  ): Promise<string | false> => {
     const user = await models.User.findOne({
       email,
       password: sha1(password),
     });
     if (user) {
-      return generateToken(user.id, remember ? 60 * 60 * 24 * 30 : 60 * 60 * 4);
+      return generateToken(user.ID, remember ? 60 * 60 * 24 * 30 : 60 * 60 * 4);
     }
     return false;
   },
-  creditsUpdate: async (userID, credits) => {
+  creditsUpdate: async (
+    userID: number,
+    credits: number
+  ): Promise<number | false> => {
     const oldCredits = await User.creditsGet(userID);
     if (oldCredits === false) {
       return false;
     }
     await models.User.updateOne(
-      { id: userID },
+      { ID: userID },
       { credits: oldCredits + credits }
     );
     return await User.creditsGet(userID);
   },
-  creditsGet: async userID => {
-    let user = await models.User.findOne({ id: userID });
+  creditsGet: async (userID: number): Promise<number | false> => {
+    let user = await models.User.findOne({ ID: userID });
     if (!user) {
       return false;
     }
@@ -150,9 +161,9 @@ export const User = {
 };
 
 export const Project = {
-  add: async (userID, url) => {
+  add: async (userID: number, url: string): Promise<IProject | false> => {
     const user = await models.User.findOne({
-      id: userID,
+      ID: userID,
     });
     if (!user) {
       return false;
@@ -163,7 +174,7 @@ export const Project = {
       const newId = await getNewProjectId();
       project = await models.Project.create({
         url,
-        id: newId,
+        ID: newId,
         user: user._id,
       });
     }
@@ -176,60 +187,72 @@ export const Project = {
     );
     const updtedProject = await models.Project.findOne({ _id: project._id });
 
-    return {
-      id: updtedProject.id,
-      url: updtedProject.url,
-      key: updtedProject.key,
-    };
+    return updtedProject
+      ? {
+          ID: updtedProject.ID,
+          url: updtedProject.url,
+          key: updtedProject.key,
+        }
+      : false;
   },
-  delete: async id => {
-    const deleted = await models.Project.deleteOne({ id });
+  delete: async (ID: number): Promise<boolean> => {
+    const deleted = await models.Project.deleteOne({ ID });
     return deleted.deletedCount === 1;
   },
-  getByID: async id => {
-    const project = await models.Project.findOne({ id });
+  getByID: async (ID: number): Promise<IProject | false> => {
+    const project = await models.Project.findOne({ ID });
     if (!project) {
       return false;
     }
-    const user = await models.User.findOne({ _id: project.user });
+    const user = await models.User.findOne({ _id: Object(project).user });
     return {
-      _id: project._id,
-      url: project.url,
-      user: user.id,
+      ID: Object(project).ID,
+      url: Object(project).url,
+      user: Object(user).ID,
     };
   },
-  getByApiKey: async key => {
+  getByApiKey: async (key: string): Promise<IProject | false> => {
     const project = await models.Project.findOne({ key });
     if (!project) {
       return false;
     }
-    return await Project.getByID(project.id);
+    return await Project.getByID(Object(project).ID);
   },
 };
 
 export const Requests = {
-  add: async (projectID, file, url, sizes, date = new Date()) => {
-    let sizesStrings = [];
-    sizes.forEach(size => {
-      sizesStrings.push(`${size.width}x${size.height}`);
-    });
-
+  add: async (
+    projectID: number,
+    file: string,
+    url: string,
+    sizes: Array<{ width: number; height: number }>,
+    date: Date = new Date()
+  ) => {
+    const sizesStrings = sizes.map(size => size.width + 'x' + size.height);
+    const project = await models.Project.findOne({ ID: projectID });
+    if (!project) {
+      return [];
+    }
     return await models.Requests.create({
-      project: projectID,
+      project: Object(project),
       file,
       generated: date,
       url,
       sizes: sizesStrings.join(', '),
     });
   },
-  getByProject: async projectID => {
-    const requests = await models.Requests.find({ project: projectID });
-    return requests.map(request => {
+  getByProject: async (projectID: number): Promise<Array<IRequest>> => {
+    const project = await models.Project.findOne({ ID: projectID });
+    if (!project) {
+      return [];
+    }
+    const requests = await models.Requests.find({ project: Object(project) });
+    return Array(requests).map(request => {
       return {
-        file: request.file,
-        generated: request.generated,
-        sizes: request.sizes,
-        url: request.url,
+        file: Object(request).file,
+        generated: Object(request).generated,
+        sizes: Object(request).sizes,
+        url: Object(request).url,
       };
     });
   },

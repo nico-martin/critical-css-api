@@ -1,14 +1,19 @@
+import express from 'express';
 import {
   forbiddenObject,
   authenticate,
   authenticateClient,
   authenticateUser,
   authenticateMaster,
-} from './../auth';
-import { sendMail } from './../mail';
-import { User } from './../database';
+} from '../auth';
+import { sendMail } from '../mail';
+import { User } from '../database';
 
-export const userGetAll = async (req, res, next) => {
+export const userGetAll = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
@@ -16,13 +21,17 @@ export const userGetAll = async (req, res, next) => {
   res.send(users);
 };
 
-export const userGet = async (req, res, next) => {
+export const userGet = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const userID = authenticateUser(req.headers, req.params.userID);
   if (!userID) {
     next(forbiddenObject);
   }
 
-  const user = await User.get(userID);
+  const user = await User.get(Number(userID));
   if (!user) {
     next({
       status: 404,
@@ -33,13 +42,17 @@ export const userGet = async (req, res, next) => {
   res.send(user);
 };
 
-export const userGetProjects = async (req, res, next) => {
+export const userGetProjects = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const userID = authenticateUser(req.headers, req.params.userID);
   if (!userID) {
     next(forbiddenObject);
   }
 
-  const projects = await User.getProjects(userID);
+  const projects = await User.getProjects(Number(userID));
   if (!projects) {
     next({
       status: 404,
@@ -50,7 +63,11 @@ export const userGetProjects = async (req, res, next) => {
   res.send(projects);
 };
 
-export const userPut = async (req, res, next) => {
+export const userPut = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   if (!authenticateClient(req.headers)) {
     next(forbiddenObject);
   }
@@ -65,13 +82,17 @@ export const userPut = async (req, res, next) => {
   res.send(user);
 };
 
-export const userUpdate = async (req, res, next) => {
+export const userUpdate = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const userID = authenticateUser(req.headers, req.params.userID);
   if (!userID) {
     next(forbiddenObject);
   }
 
-  const user = await User.update(userID, req.body);
+  const user = await User.update(Number(userID), req.body);
   if (!user) {
     next({
       status: 400,
@@ -83,7 +104,11 @@ export const userUpdate = async (req, res, next) => {
   res.send(user);
 };
 
-export const userUpdatePassword = async (req, res, next) => {
+export const userUpdatePassword = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const userID = authenticateUser(req.headers, req.params.userID);
   if (!userID) {
     next(forbiddenObject);
@@ -93,7 +118,7 @@ export const userUpdatePassword = async (req, res, next) => {
     next();
   }
 
-  const password = await User.updatePassword(userID, req.body.password);
+  const password = await User.updatePassword(Number(userID), req.body.password);
   if (!password) {
     next({
       status: 400,
@@ -107,7 +132,11 @@ export const userUpdatePassword = async (req, res, next) => {
   });
 };
 
-export const userDelete = async (req, res, next) => {
+export const userDelete = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
@@ -115,7 +144,11 @@ export const userDelete = async (req, res, next) => {
   res.send({ deleted: user });
 };
 
-export const userSignIn = async (req, res, next) => {
+export const userSignIn = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   if (!authenticateClient(req.headers)) {
     next(forbiddenObject);
   }
@@ -134,7 +167,11 @@ export const userSignIn = async (req, res, next) => {
   res.send({ token: authToken });
 };
 
-export const userResetPassword = async (req, res, next) => {
+export const userResetPassword = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   if (!authenticateClient(req.headers)) {
     next(forbiddenObject);
   }
@@ -152,7 +189,7 @@ export const userResetPassword = async (req, res, next) => {
     });
   }
 
-  const password = await User.updatePassword(user.id);
+  const password = await User.updatePassword(Object(user).id);
 
   if (!password) {
     next({
@@ -162,17 +199,21 @@ export const userResetPassword = async (req, res, next) => {
     });
   }
 
-  let mailContent = `<p>Hello ${user.firstname ? user.firstname + ' ' : ''}${
-    user.lastname ? user.lastname + ' ' : ''
-  }`;
+  let mailContent = `<p>Hello ${
+    Object(user).firstname ? Object(user).firstname + ' ' : ''
+  }${Object(user).lastname ? Object(user).lastname + ' ' : ''}`;
   mailContent += `</p><p>You requested a temporary password for <a href="https://app.critial-css.io">https://app.critial-css.io</a>. Please change it after your next login.</p>`;
   mailContent += `<p>Password: <b>${password}</b></p><p>Kind regards</p>`;
-  await sendMail(user.email, 'Password Changed', mailContent);
+  await sendMail(Object(user).email, 'Password Changed', mailContent);
 
   res.send({ updated: true });
 };
 
-export const userUpdateCredits = async (req, res, next) => {
+export const userUpdateCredits = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   if (!authenticateMaster(req.headers)) {
     next(forbiddenObject);
   }
@@ -186,7 +227,11 @@ export const userUpdateCredits = async (req, res, next) => {
   res.send({ credits: newCredits });
 };
 
-export const userJwtValidate = (req, res, next) => {
+export const userJwtValidate = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const auth = authenticate(req.headers);
   res.send({ user: auth === 'master' ? false : auth });
 };

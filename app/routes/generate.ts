@@ -1,14 +1,19 @@
-import critical from 'critical';
+//import critical from 'critical';
 import fs from 'fs';
 import path from 'path';
-import { Project, Requests, User } from './../database';
-import criticalCSS from './../criticalCSS/';
+import { Project, Requests, User } from '../database';
+import * as criticalCSS from './../criticalCSS/index';
+import express from 'express';
 
 const outputFolder = 'public/';
 const tmpFolder = outputFolder + 'tmp/';
 const cssFolder = outputFolder + 'css/';
 
-export const validateToken = async (req, res, next) => {
+export const validateToken = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const token = req.body.token;
   const targetUrl = req.body.url;
   const project = await Project.getByApiKey(token);
@@ -25,7 +30,11 @@ export const validateToken = async (req, res, next) => {
   });
 };
 
-export const generateCriticalCSS = async (req, res, next) => {
+export const generateCriticalCSS = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   const maxDimensionsSize = 3;
   const token = req.body.token;
   const targetUrl = req.body.url;
@@ -40,7 +49,7 @@ export const generateCriticalCSS = async (req, res, next) => {
   !fs.existsSync(requestTmpFolder) && fs.mkdirSync(requestTmpFolder);
   !fs.existsSync(cssFolder) && fs.mkdirSync(cssFolder);
 
-  const project = await Project.getByApiKey(token);
+  let project = await Project.getByApiKey(token);
   if (!project || targetUrl.indexOf(project.url) !== 0) {
     next({
       status: 403,
@@ -58,7 +67,7 @@ export const generateCriticalCSS = async (req, res, next) => {
     });
   }
 
-  const credits = await User.creditsGet(project.user);
+  const credits = await User.creditsGet(Object(project).user);
   if (credits <= 0) {
     next({
       status: 400,
@@ -67,10 +76,14 @@ export const generateCriticalCSS = async (req, res, next) => {
     });
   }
 
-  generatingCritical(targetUrl, dimensionsArray).then(
-    async response => {
+  criticalCSS
+    .generate({
+      src: targetUrl,
+      dimensions: dimensionsArray,
+    })
+    .then(async response => {
       const date = new Date();
-      const folder = cssFolder + project.user + '/';
+      const folder = cssFolder + Object(project).user + '/';
       const key = (targetUrl + '-' + date.getTime())
         .replace('http://', '')
         .replace('https://', '')
@@ -90,7 +103,7 @@ export const generateCriticalCSS = async (req, res, next) => {
           });
         } else {
           await Requests.add(
-            project._id,
+            Object(project).ID,
             file.replace(outputFolder, ''),
             targetUrl,
             dimensionsArray,
@@ -101,15 +114,14 @@ export const generateCriticalCSS = async (req, res, next) => {
           res.status(201).send(response);
         }
       });
-    },
-    err => {
+    })
+    .catch((err: string) =>
       next({
         status: 500,
         code: 'generation_failed',
-        text: err.message,
-      });
-    }
-  );
+        text: err,
+      })
+    );
 };
 
 /**
@@ -117,7 +129,7 @@ export const generateCriticalCSS = async (req, res, next) => {
  * @param dimensions
  * @returns {Array} with Dimensions
  */
-function getDimensionsArray(dimensions) {
+const getDimensionsArray = (dimensions: Array<criticalCSS.Dimension>) => {
   let dimensionsArray = [];
 
   if (dimensions == null) {
@@ -136,7 +148,7 @@ function getDimensionsArray(dimensions) {
     }
   }
   return dimensionsArray;
-}
+};
 
 /**
  * Returns a Critical CSS File
@@ -144,56 +156,8 @@ function getDimensionsArray(dimensions) {
  * @param targetDimensions  Json Obj. of Dimensions
  * @returns {Promise}   bool Promise
  */
-function generatingCritical(targetUrl, targetDimensions) {
-  console.log('Start CCSS for ', targetUrl);
-  console.log('Start CCSS for dim ', targetDimensions);
 
-  return new Promise((resolve, reject) => {
-    criticalCSS
-      .generate({
-        src: targetUrl,
-        dimensions: targetDimensions,
-      })
-      .then(css => {
-        console.log('PCCSS done');
-        resolve(css);
-      })
-      .catch(err => reject(err));
-  });
-  /*
-
-  return new Promise((resolve, reject) => {
-    critical
-      .generate({
-        base: tmpFolder,
-        src: targetUrl,
-        dest: 'main-critical.css',
-        dimensions: targetDimensions,
-        minify: true,
-      })
-      .then(output => {
-        console.log('Critical successfully generated');
-        resolve(output);
-      })
-      .error(err => {
-        console.log('Critical Error ', err);
-        reject(new Error('Failed generating CCSS'));
-      })
-      .catch(err => {
-        if (err.code === 'ENOTFOUND') {
-          console.log('URL not valid ');
-          console.log('Host', err.host, err.port);
-          reject(new Error('Not valid Host ' + err.host));
-        } else {
-          console.log('System error Message', err);
-          reject(new Error('Critical System Error' + err));
-        }
-      });
-  });
-   */
-}
-
-const deleteTempFiles = folder => {
+const deleteTempFiles = (folder: string) => {
   fs.readdir(folder, (err, files) => {
     if (err) {
       console.log(err);

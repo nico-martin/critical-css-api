@@ -1,5 +1,4 @@
-import models from './models';
-import puppeteer from 'puppeteer';
+import models from './models/index';
 
 export const getNewUserId = async () => {
   const latestUser = await models.User.find()
@@ -8,16 +7,17 @@ export const getNewUserId = async () => {
   if (!latestUser || Object.keys(latestUser).length === 0) {
     return 1;
   }
-  return latestUser[0].id + 1;
+  return Object(latestUser[0]).ID + 1;
 };
 
-export const normalizeUser = (user, acceptId = false) => {
+export const normalizeUser = (user: Object, acceptId = false) => {
   const keys = ['email', 'firstname', 'lastname', ...(acceptId ? ['id'] : [])];
   const userObject = {};
 
   Object.entries(user).map(e => {
     if (keys.indexOf(e[0]) !== -1) {
-      userObject[e[0]] = e[1];
+      // @ts-ignore
+      userObject[e[0]] = String(e[1]);
     }
   });
 
@@ -31,15 +31,15 @@ export const getNewProjectId = async () => {
   if (!latesProject || Object.keys(latesProject).length === 0) {
     return 1;
   }
-  return latesProject[0].id + 1;
+  return Object(latesProject[0]).ID + 1;
 };
 
-export const verifyBaseUrl = url => {
+export const verifyBaseUrl = (url: string) => {
   // todo: remove trainling slashes and check if is a valid URL
   return url;
 };
 
-export const makeRandomString = length => {
+export const makeRandomString = (length: number) => {
   let result = '';
   const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;

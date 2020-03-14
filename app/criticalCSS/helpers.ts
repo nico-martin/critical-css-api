@@ -1,6 +1,6 @@
 import CleanCSS from 'clean-css';
 
-export const isValidURL = url => {
+export const isValidURL = (url: string): boolean => {
   if (!url) {
     return false;
   }
@@ -16,7 +16,7 @@ export const isValidURL = url => {
   return pattern.test(url);
 };
 
-export const cleanUpCSS = CSSArray => {
+export const cleanUpCSS = (CSSArray: Array<string>) => {
   debug('CSS Before', CSSArray.join().length);
   const re = new CleanCSS({
     level: {
@@ -37,19 +37,17 @@ export const cleanUpCSS = CSSArray => {
   return re;
 };
 
-export const debug = (title, value) => {
+export const debug = (title: string, value: any) => {
   /*
   console.log('+++DEBUG+++++++++++');
   console.log(title, value);
-
    */
 };
 
-export const logError = error => {
+export const logError = (error: any) => {
   /*
   console.log('***************************');
   console.log('ERROR:', error);
   console.log('***************************');
-
    */
 };
