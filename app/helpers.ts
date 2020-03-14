@@ -1,5 +1,4 @@
 import models from './models/index';
-import { IUser } from './types/db';
 
 export const getNewUserId = async () => {
   const latestUser = await models.User.find()
@@ -8,7 +7,7 @@ export const getNewUserId = async () => {
   if (!latestUser || Object.keys(latestUser).length === 0) {
     return 1;
   }
-  return latestUser[0].id + 1;
+  return Object(latestUser[0]).ID + 1;
 };
 
 export const normalizeUser = (user: Object, acceptId = false) => {
@@ -32,7 +31,7 @@ export const getNewProjectId = async () => {
   if (!latesProject || Object.keys(latesProject).length === 0) {
     return 1;
   }
-  return latesProject[0].id + 1;
+  return Object(latesProject[0]).ID + 1;
 };
 
 export const verifyBaseUrl = (url: string) => {

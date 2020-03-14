@@ -94,7 +94,7 @@ export const User = {
     }
     const projects = await models.Project.find({ user: user._id });
     const projectPromises = projects.map(async project => {
-      const requests = await Requests.getByProject(project._id);
+      const requests = await Requests.getByProject(Object(project).ID);
       return {
         ID: project.ID,
         url: project.url,
@@ -229,8 +229,12 @@ export const Requests = {
     date: Date = new Date()
   ) => {
     const sizesStrings = sizes.map(size => size.width + 'x' + size.height);
+    const project = await models.Project.findOne({ ID: projectID });
+    if (!project) {
+      return [];
+    }
     return await models.Requests.create({
-      project: projectID,
+      project: Object(project),
       file,
       generated: date,
       url,
