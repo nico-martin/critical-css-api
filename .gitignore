@@ -6,3 +6,4 @@ dist
 public
 combined.log
 error.log
+yarn-error.log
