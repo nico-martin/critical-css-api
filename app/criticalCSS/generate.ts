@@ -69,6 +69,7 @@ const generateCssForDimension = async (
   browser: puppeteer.Browser
 ): Promise<string> =>
   new Promise((resolve, reject) =>
+    // @ts-ignore
     penthouse({
       url,
       cssString: css,
