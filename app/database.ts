@@ -247,13 +247,15 @@ export const Requests = {
       return [];
     }
     const requests = await models.Requests.find({ project: Object(project) });
-    return Array(requests).map(request => {
-      return {
-        file: Object(request).file,
-        generated: Object(request).generated,
-        sizes: Object(request).sizes,
-        url: Object(request).url,
-      };
-    });
+    return requests.length === 0
+      ? []
+      : requests.map(request => {
+          return {
+            file: Object(request).file,
+            generated: Object(request).generated,
+            sizes: Object(request).sizes,
+            url: Object(request).url,
+          };
+        });
   },
 };
