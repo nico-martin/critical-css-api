@@ -29,7 +29,8 @@ export const generate = (opts: Options) =>
       debug('get ccss with', opts);
       debug(`isValidURL(${opts.src})`, isValidURL(opts.src));
       if (!isValidURL(opts.src)) {
-        logError(`"${opts.src}" is not a valid URL`);
+        debug('generate isValidURL', `"${opts.src}" is not a valid URL`);
+        //logError(`"${opts.src}" is not a valid URL`);
         reject(`"${opts.src}" is not a valid URL`);
       }
 
@@ -53,10 +54,11 @@ export const generate = (opts: Options) =>
         })
         .catch(err => {
           browser.close();
-          logError(err);
+          debug('generate failed', err);
           reject('CCSS could not be generated');
         });
     } catch (e) {
+      debug('generate catch', e);
       reject(e);
     }
   });

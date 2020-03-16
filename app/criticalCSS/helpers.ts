@@ -38,16 +38,12 @@ export const cleanUpCSS = (CSSArray: Array<string>) => {
 };
 
 export const debug = (title: string, value: any) => {
-  /*
   console.log('+++DEBUG+++++++++++');
   console.log(title, value);
-   */
 };
 
 export const logError = (error: any) => {
-  /*
   console.log('***************************');
   console.log('ERROR:', error);
   console.log('***************************');
-   */
 };
