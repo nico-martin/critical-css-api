@@ -34,7 +34,10 @@ export const generate = (opts: Options) =>
         reject(`"${opts.src}" is not a valid URL`);
       }
 
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox'],
+      });
       const css = await fetchCSS(opts.src, browser);
       const loadDimensions: Array<Promise<string>> = [];
       opts.dimensions.forEach(dim => {
