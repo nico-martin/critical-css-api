@@ -1,5 +1,6 @@
 import { forbiddenObject, authenticateUser } from '../auth';
 import { Project, User } from '../database';
+import { untrailingSlashIt } from '../helpers';
 import express from 'express';
 
 export const projectPut = async (
@@ -12,7 +13,10 @@ export const projectPut = async (
     next();
   }
 
-  const project = await Project.add(Number(userID), req.body.url);
+  const project = await Project.add(
+    Number(userID),
+    untrailingSlashIt(req.body.url)
+  );
   if (!project) {
     next();
   }
